@@ -1,0 +1,21 @@
+FROM python:3.10-slim
+
+WORKDIR /app
+
+COPY . /app
+
+# Install any needed packages specified in requirements.txt
+RUN curl -fsSL https://ollama.com/install.sh | sh
+
+# RUN ollama pull deepseek-r1:7b
+
+RUN pip install --no-cache-dir -r requirements.txt
+
+RUN pip install deepseek
+
+EXPOSE 80
+
+ENV NAME DeepSeek
+
+# Run DeepSeek when the container launches
+CMD ["python", "your_deepseek_script.py"]
