@@ -6,6 +6,10 @@ __pycache__/
 # C extensions
 *.so
 
+# Ollama
+ollama
+open-webui
+
 # Distribution / packaging
 .Python
 build/
