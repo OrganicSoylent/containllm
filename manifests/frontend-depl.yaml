@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: openweb-ui
+  labels:
+    app: openweb-ui
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: openweb-ui
+  template:
+    metadata:
+      labels:
+        app: openweb-ui
+    spec:
+      containers:
+      - name: openweb-ui
+        image: ghcr.io/open-webui/open-webui:main
+        env:
+        - name: WEBUI_NAME
+          value: "DeepSeek CUPRA"        
+        - name: OLLAMA_BASE_URL
+          value: "http://ollama-service:11434"  
+        - name: OLLAMA_DEFAULT_MODEL
+          value: "deepseek-r1:1.5b"             
+        ports:
+        - containerPort: 8080
+        volumeMounts:
+        - name: openweb-data
+          mountPath: /app/backend/data
+      volumes:
+      - name: openweb-data
+        persistentVolumeClaim:
+          claimName: openweb-ui-pvc

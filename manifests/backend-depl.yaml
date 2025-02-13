@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ollama
+  labels:
+    app: ollama
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ollama
+  template:
+    metadata:
+      labels:
+        app: ollama
+    spec:
+      containers:
+      - name: ollama
+        image: ollama/ollama:latest
+        ports:
+        - containerPort: 11434
+        volumeMounts:
+        - mountPath: /root/.ollama
+          name: ollama-storage
+        env:
+        - name: OLLAMA_MODEL
+          value: deepseek-r1:1.5b
+        - name: OLLAMA_KEEP_ALIVE
+          value: "-1"  
+        - name: OLLAMA_NO_THINKING
+          value: "true"
+        - name: OLLAMA_SYSTEM_PROMPT
+          value: "You are DeepSeek-R1, a reasoning model. Provide direct answers without detailed reasoning steps or <think> tags."
+      volumes:
+      - name: ollama-storage
+        emptyDir: {}        

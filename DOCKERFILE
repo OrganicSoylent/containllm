@@ -1,6 +1,5 @@
 # FROM ollama/ollama
 
-
 # Use a base image with CUDA support if using GPU, otherwise use Ubuntu
 FROM ubuntu:22.04
 
@@ -19,13 +18,15 @@ RUN apt update && apt install -y \
 RUN curl -fsSL https://ollama.com/install.sh | sh
 # RUN ollama -v
 # Expose Ollama's default port (if needed)
-EXPOSE 11434
+EXPOSE 11434 
+# EXPOSE 8080
 
 # Pull Llama 3 model
 # RUN ollama pull llama3
 # RUN ollama pull deepseek-r1
 # Start Ollama service by default
 # CMD ["ollama", "serve"]
+
 COPY entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 CMD ["/entrypoint.sh"]
