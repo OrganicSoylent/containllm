@@ -2,6 +2,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: ollama-service
+  namespace: ollama
 spec:
   selector:
     app: ollama
@@ -15,6 +16,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: openweb-ui-svc
+  namespace: ollama
 spec:
   selector:
     app: openweb-ui

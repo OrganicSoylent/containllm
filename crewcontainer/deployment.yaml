@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: crewai-deployment
+  namespace: crewai
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: crewai
+  template:
+    metadata:
+      labels:
+        app: crewai
+    spec:
+      containers:
+        - name: crewai-container
+          image: 192.168.49.2:5000/crewai:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 9000
