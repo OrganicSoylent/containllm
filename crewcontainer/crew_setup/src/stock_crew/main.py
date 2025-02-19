@@ -4,7 +4,7 @@ import warnings
 
 from datetime import datetime
 
-from stock_crew.crew import StockCrew
+from crew import StockCrew
 
 warnings.filterwarnings("ignore", category=SyntaxWarning, module="pysbd")
 

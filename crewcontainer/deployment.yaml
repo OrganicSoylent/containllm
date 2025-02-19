@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: crewai-container
-          image: 192.168.49.2:5000/crewai:latest
+          image: 192.168.49.2:5000/crewai:1.0
           imagePullPolicy: IfNotPresent
           ports:
-            - containerPort: 9000
+            - containerPort: 80
