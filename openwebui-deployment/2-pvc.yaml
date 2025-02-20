@@ -2,7 +2,7 @@ apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: openweb-ui-pvc
-  namespace: ollama
+  namespace: openwebui
 spec:
   accessModes:
     - ReadWriteOnce

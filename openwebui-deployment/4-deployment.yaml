@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: openweb-ui
-  namespace: ollama
+  namespace: openwebui
   labels:
     app: openweb-ui
 spec:
@@ -15,14 +15,22 @@ spec:
       labels:
         app: openweb-ui
     spec:
+    ## deployment waits for pvc & /app/backend/data directory setup to be finished
+      initContainers:
+      - name: check-pvc
+        image: busybox
+        command: ["sh", "-c", "mkdir -p /app/backend/data && echo 'PVC is ready'"]
+        volumeMounts:
+        - mountPath: "/app/backend/data"
+          name: openweb-data
       containers:
       - name: openweb-ui
-        image: ghcr.io/open-webui/open-webui:main
+        image: 192.168.49.2:5000/openwebui:latest # original: ghcr.io/open-webui/open-webui:main
         env:
         - name: WEBUI_NAME
-          value: "DeepSeek CUPRA"        
+          value: "/n AI-nablement @ SEAT/CUPRA DE /n"        
         - name: OLLAMA_BASE_URL
-          value: "http://ollama-service:11434"  
+          value: "http://ollama-service.ollama.svc.cluster.local:11434"  
         - name: OLLAMA_DEFAULT_MODEL
           value: "deepseek-r1:1.5b"             
         ports:
