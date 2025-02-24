@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: crewai-container
-          image: ghcr.io/OrganicSoylent/crewai:latest # local registry: 192.168.49.2:5000/crewai:latest
+          image: ghcr.io/organicsoylent/crewai:latest # local registry: 192.168.49.2:5000/crewai:latest
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 80
