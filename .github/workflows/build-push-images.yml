@@ -27,7 +27,6 @@ jobs:
         password: ${{ secrets.GITHUB_TOKEN }}
     - name: Build & Push Ollama image
       run: |
-        cd 
         docker build -t ghcr.io/organicsoylent/ollama:latest ollama-deployment/
         docker push ghcr.io/organicsoylent/ollama:latest
 
