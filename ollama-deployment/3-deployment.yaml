@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
       - name: ollama
-        image: ghcr.io/OrganicSoylent/containllm/ollama:latest # local: 192.168.49.2:5000/ollama:latest # original: ollama/ollama:latest
+        image: ghcr.io/OrganicSoylent/ollama:latest # local: 192.168.49.2:5000/ollama:latest # original: ollama/ollama:latest
         ports:
         - containerPort: 11434
         volumeMounts:
