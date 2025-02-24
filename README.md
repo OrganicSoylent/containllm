@@ -4,8 +4,7 @@
 __I. Cluster Quickstart__
 1. [Enable Nvidia runtime in Docker](#1-enable-nvidia-runtime-in-docker)
 2. [Start the Cluster](#2-start-the-cluster)
-3. [Check if registry is enabled](#3-check-if-registry-is-enabled)
-4. [Enable outside access to cluster](#4-enable-outside-access-to-cluster)
+3. [Enable outside access to cluster](#3-enable-outside-access-to-cluster)
 
 __II. Applications Quickstart__
 1. [Ollama](#1-ollama)
@@ -54,26 +53,10 @@ If this doesn't work, go to the [troubleshooting section](#troubleshooting-nvidi
 Starts Minikube cluster with GPU usage and an internal image registry enabled
 ```
 minikube start --driver docker --container-runtime docker --gpus all
-
-## --addons=registry --insecure-registry="192.168.49.2:5000"
-```
-_Note: The IP address of the registry needs to be set in the docker daemon.json first ([reference](#configure-docker-daemon))_
-
-### 3. Check if registry is enabled
-This is required to use prebuilt images for crewai and ollama. Requires building images from Dockerfile first ([reference]())
-```
-kubectl get svc -n kube-system | grep registry
-```
-optional: check if IP address is the same as in docker daemon.json
-```
-minikube ip
-
-# If the registry is not running, you can start it with this command
-minikube addons enable registry
 ```
 
-### 4. Enable outside access to cluster
-To enable access to apps on the cluster, run this in a second terminal __and keep it running__:
+### 3. Enable outside access to cluster
+To enable access to apps on the cluster, run this __in a second terminal and keep it running__:
 ```
 minikube tunnel
 ```
@@ -81,14 +64,6 @@ _Note: When deploying a LoadBalancer to the cluster, you will have to provide yo
 
 ## II. Applications Quickstart
 ### 1. Ollama
-_Note: Step requires prebuilt container images_ ([reference](#build-docker-images))
-
-Push the docker image from your local registry to the registry in the cluster
-```
-docker image ls
-
-docker push 192.168.49.2:5000/ollama:latest
-```
 Deploys the kubernetes resources
 ```
 kubectl apply -f ./ollama-deployment/.
@@ -106,14 +81,6 @@ kubectl exec pod/<ollama-pod> -n ollama -- ollama pull deepseek-r1:1.5b
 _Note: you can also to this through the Kubernetes dashboard._
 
 ### 2. CrewAI
-_Note: Step requires prebuilt container images_ ([reference](#build-docker-images))
-
-Push the docker image from your local registry to the registry in the cluster
-```
-docker image ls
-
-docker push 192.168.49.2:5000/crewai:latest
-```
 Apply the deployment
 ```
 kubectl apply -f ./crewai-deployment/.
@@ -124,14 +91,6 @@ kubectl get pods -n crewai
 ```
 
 ### 3. OpenwebUI
-_Note: Step requires prebuilt container images_ ([reference](#build-docker-images))
-
-Push the docker image from your local registry to the registry in the cluster
-```
-docker image ls
-
-docker push 192.168.49.2:5000/openwebui:latest
-```
 Deploy Kubernetes resources
 ```
 kubectl apply -f ./openwebui-deployment/.
@@ -331,8 +290,7 @@ sudo tee /etc/docker/daemon.json <<EOF
       "path": "nvidia-container-runtime",
       "runtimeArgs": []
     }
-  },
-  "insecure-registries": ["192.168.49.2:5000"]
+  }
 }
 EOF
 ```
