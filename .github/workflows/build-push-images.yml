@@ -12,26 +12,42 @@ permissions:
   packages: write
   
 jobs:
-  build-and-push-images:
+  build-and-push-ollama:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout repo
       uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
     - name: Log in to ghcr
       uses: docker/login-action@v3
       with:
         registry: ghcr.io
         username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }}
-        
+    - name: Build & Push Ollama image
+      run: |
+        docker build -t ghcr.io/organicsoylent/ollama:latest -f ollama-deployment/Dockerfile .
+        docker push ghcr.io/organicsoylent/ollama:latest
+
+  build-and-push-crewai:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout repo
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    - name: Log in to ghcr
+      uses: docker/login-action@v3
+      with:
+        registry: ghcr.io
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
     - name: Build & Push CrewAI image
       run: |
         docker build -t ghcr.io/organicsoylent/crewai:latest -f crewai-deployment/Dockerfile .
         docker push ghcr.io/organicsoylent/crewai:latest
 
-    - name: Build & Push Ollama image
-      run: |
-        docker build -t ghcr.io/organicsoylent/ollama:latest -f ollama-deployment/Dockerfile .
-        docker push ghcr.io/organicsoylent/ollama:latest
+
 
 

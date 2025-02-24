@@ -3,16 +3,18 @@ FROM python:3.12
 
 # Set the working directory in the container
 WORKDIR /app
-
-# Copy the requirements file and install dependencies
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+RUN mkdir marketing_crew/
+RUN mkdir stock_analysis/
+RUN mkdir trip_planner/
 
 # Copy the application code
 COPY crewai_setup/crews/marketing_strategy/ /app/marketing_crew/
 COPY crewai_setup/crews/stock_analysis/ /app/stock_analysis/
 COPY crewai_setup/crews/trip_planner/ /app/trip_planner/
 
+# Copy the requirements file and install dependencies
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
 
 # Expose port if required (modify as needed)
 EXPOSE 8080
