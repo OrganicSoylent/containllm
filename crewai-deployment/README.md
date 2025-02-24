@@ -1,4 +1,4 @@
-## Install container for CrewAI
+## Locally run CrewAI
 
 ```
 pip install crewai
