@@ -27,7 +27,8 @@ jobs:
         password: ${{ secrets.GITHUB_TOKEN }}
     - name: Build & Push Ollama image
       run: |
-        docker build -t ghcr.io/organicsoylent/ollama:latest -f ollama-deployment/Dockerfile .
+        cd 
+        docker build -t ghcr.io/organicsoylent/ollama:latest ollama-deployment/
         docker push ghcr.io/organicsoylent/ollama:latest
 
   build-and-push-crewai:
@@ -45,7 +46,7 @@ jobs:
         password: ${{ secrets.GITHUB_TOKEN }}
     - name: Build & Push CrewAI image
       run: |
-        docker build -t ghcr.io/organicsoylent/crewai:latest -f crewai-deployment/Dockerfile .
+        docker build -t ghcr.io/organicsoylent/crewai:latest crewai-deployment/
         docker push ghcr.io/organicsoylent/crewai:latest
 
 
