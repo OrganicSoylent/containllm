@@ -18,14 +18,14 @@ __III. Optional Tools__
 
 __IV. Prerequesits__
 
-__1. Minikube__
+_1. Minikube_
 1. [Install Docker in WSL 2](#1-install-docker-in-wsl-2)
 2. [Install Minikube prerequisites](#2-install-minikube-prerequisites)
 3. [Install Minikube](#3-install-minikube)
 4. [Install kubectl and set context to Minikube](#4-install-kubectl-and-set-context-to-minikube)
 5. [Install Helm](#5-install-helm)
 
-__2. Build Docker Images__
+_2. Build Docker Images_
 1. [Build CrewAI Image](#1-build-crewai-image)
 2. [Save Ollama Image locally](#2-save-ollama-image-locally)
 3. [Save OpenWebUI Image locally](#3-save-openwebui-image-locally)
@@ -53,21 +53,22 @@ If this doesn't work, go to the [troubleshooting section](#troubleshooting-nvidi
 ### 2. Start the Cluster
 Starts Minikube cluster with GPU usage and an internal image registry enabled
 ```
-minikube start --driver docker --container-runtime docker --gpus all --addons=registry --insecure-registry="192.168.49.2:5000"
+minikube start --driver docker --container-runtime docker --gpus all
+
+## --addons=registry --insecure-registry="192.168.49.2:5000"
 ```
 _Note: The IP address of the registry needs to be set in the docker daemon.json first ([reference](#configure-docker-daemon))_
 
 ### 3. Check if registry is enabled
 This is required to use prebuilt images for crewai and ollama. Requires building images from Dockerfile first ([reference]())
 ```
-# check if registry is deployed
 kubectl get svc -n kube-system | grep registry
-
-# optional: check if IP address is the same as in docker daemon.json
+```
+optional: check if IP address is the same as in docker daemon.json
+```
 minikube ip
-```
-If the registry is not running, you can start it with this command
-```
+
+# If the registry is not running, you can start it with this command
 minikube addons enable registry
 ```
 
@@ -148,7 +149,7 @@ The repo contains a customized version of the [Kubernetes Dashboard](#3-kubernet
 
 __Ensure the [cluster is tunneling and the tunnel is unlocked](#4-enable-outside-access-to-cluster).__
 ```
-kubectl apply -f /kubernetes-dashboard/.
+kubectl apply -f ./kubernetes-dashboard/.
 ```
 Check for deployment status
 ```

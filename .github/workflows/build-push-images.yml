@@ -26,12 +26,12 @@ jobs:
         
     - name: Build & Push CrewAI image
       run: |
-        docker build -t ghcr.io/OrganicSoylent/crewai:latest -f crewai-deployment/Dockerfile .
-        docker push ghcr.io/OrganicSoylent/crewai:latest
+        docker build -t ghcr.io/OrganicSoylent/containllm/crewai:latest -f crewai-deployment/Dockerfile .
+        docker push ghcr.io/OrganicSoylent/containllm/crewai:latest
 
     - name: Build & Push Ollama image
       run: |
-        docker build -t ghcr.io/OrganicSoylent/ollama:latest -f ollama-deployment/Dockerfile .
-        docker push ghcr.io/OrganicSoylent/ollama:latest
+        docker build -t ghcr.io/OrganicSoylent/containllm/ollama:latest -f ollama-deployment/Dockerfile .
+        docker push ghcr.io/OrganicSoylent/containllm/ollama:latest
 
 
