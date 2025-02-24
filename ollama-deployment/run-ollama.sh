@@ -1,10 +1,12 @@
-#!/usr/bin/env bash
+#!/bin/bash
 
-# ollama serve &
-# ollama list
+echo "Starting Ollama server..."
+ollama serve &
+
+
+echo "Waiting for Ollama server to be active..."
+while [ "$(ollama list | grep 'NAME')" == "" ]; do
+  sleep 1
+done
+
 ollama pull deepseek-r1:1.5b
-ollama list
-
-# ollama serve &
-# ollama list
-# ollama pull deepseek-r1:7b
