@@ -1,0 +1,37 @@
+name: Build and Push Docker Images
+
+on:
+  push:
+    branches: 
+      - main
+  pull_request:
+    branches: 
+      - main
+permissions:
+  contents: read
+  packages: write
+  
+jobs:
+  build-and-push-images:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout repo
+      uses: actions/checkout@v4
+    - name: Log in to ghcr
+      uses: docker/login-action@v3
+      with:
+        registry: ghcr.io
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+        
+    - name: Build & Push CrewAI image
+      run: |
+        docker build -t ghcr.io/OrganicSoylent/crewai:latest -f crewai-deployment/Dockerfile .
+        docker push ghcr.io/OrganicSoylent/crewai:latest
+
+    - name: Build & Push Ollama image
+      run: |
+        docker build -t ghcr.io/OrganicSoylent/ollama:latest -f ollama-deployment/Dockerfile .
+        docker push ghcr.io/OrganicSoylent/ollama:latest
+
+
