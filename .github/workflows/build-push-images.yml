@@ -18,12 +18,12 @@ jobs:
 #### Ollama Section ####
   download-model:
     runs-on: ubuntu-latest
+    env:
+      OLLAMA_MODELS: /home/runner/work/containllm/containllm/models/
     steps:
       - name: Install Ollama and start Ollama
         run: |
           curl -fsSL https://ollama.com/install.sh | sh
-
-          export OLLAMA_MODELS=/home/runner/work/containllm/containllm/models/
 
           echo "Starting Ollama server in the background..."
           ollama serve &
@@ -38,10 +38,7 @@ jobs:
 
           ollama list
 
-          ls -a /home/runner/work/containllm/containllm/models/
-
-      # sudo chown -R $(whoami):$(whoami) /home/runner/work/containllm/containllm/.ollama/models/
-      # sudo chmod -R 755 /home/runner/work/containllm/containllm/.ollama/models/
+          ls -la $OLLAMA_MODELS
 
       - name: Upload model as artifact
         uses: actions/upload-artifact@v4
@@ -74,7 +71,7 @@ jobs:
           --build-arg MODEL_NAME=$MODEL_NAME \
           -t ghcr.io/organicsoylent/ollama:latest \
           --file ollama-deployment/Dockerfile \
-          --build-context models=/root/.ollama/models/ \
+          --build-context models=ollama-models/ \
           ollama-deployment/
     - name: Save image for testing
       run: docker save ghcr.io/organicsoylent/ollama:latest -o ollama.tar
