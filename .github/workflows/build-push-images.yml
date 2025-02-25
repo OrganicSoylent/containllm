@@ -16,13 +16,44 @@ env:
 
 jobs:
 #### Ollama Section ####
+download-model:
+  runs-on: ubuntu-latest
+  steps:
+    - name: Install Ollama
+      run: curl -fsSL https://ollama.com/install.sh | sh 
+
+    - name: Start Ollama and Pull Model
+      run: |
+        echo "Starting Ollama server in the background..."
+        ollama serve &
+
+        echo "Waiting for Ollama server to be active..."
+        while ! ollama list >/dev/null 2>&1; do
+          sleep 1
+        done
+
+        echo "Ollama server is running. Pulling model..."
+        ollama pull $MODEL_NAME
+
+    - name: Upload model as artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: ollama-model
+        path: /root/.ollama/models/
+
   build-image-ollama:
+    needs: download-model
     runs-on: ubuntu-latest
     steps:
     - name: Checkout repo
       uses: actions/checkout@v4
       with:
         fetch-depth: 0
+    - name: Download the model artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: ollama-model
+        path: ollama-models/
     - name: Log in to ghcr
       uses: docker/login-action@v3
       with:
@@ -31,7 +62,12 @@ jobs:
         password: ${{ secrets.GITHUB_TOKEN }}
     - name: Build Ollama image
       run: |
-        docker build -t ghcr.io/organicsoylent/ollama:latest ollama-deployment/
+        docker build \
+          --build-arg MODEL_NAME=$MODEL_NAME \
+          -t ghcr.io/organicsoylent/ollama:latest \
+          --file ollama-deployment/Dockerfile \
+          --build-context models=/root/.ollama/models/ \
+          ollama-deployment/
     - name: Save image for testing
       run: docker save ghcr.io/organicsoylent/ollama:latest -o ollama.tar
     - name: Upload image as artifact
@@ -63,7 +99,7 @@ jobs:
           "
 
   push-ollama:
-    needs: build-image-ollama # test-ollama
+    needs: test-ollama
     runs-on: ubuntu-latest
     steps:
       - name: Log in to GitHub Container Registry
