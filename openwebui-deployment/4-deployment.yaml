@@ -28,7 +28,7 @@ spec:
         image: ghcr.io/open-webui/open-webui:main # local: 192.168.49.2:5000/openwebui:latest
         env:
         - name: WEBUI_NAME
-          value: "/n AI-nablement @ SEAT/CUPRA DE /n"        
+          value: "AI-nablement @ SEAT/CUPRA DE"        
         - name: OLLAMA_BASE_URL
           value: "http://ollama-service.ollama.svc.cluster.local:11434"  
         - name: OLLAMA_DEFAULT_MODEL
