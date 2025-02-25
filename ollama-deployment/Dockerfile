@@ -2,7 +2,9 @@ FROM ubuntu:22.04 AS final
 
 # Set non-interactive mode to avoid prompts during installation
 ENV DEBIAN_FRONTEND=noninteractive
-ENV MODEL_PATH=/root/.ollama/models/
+
+# Define the model storage path
+ENV OLLAMA_MODELS=/models
 
 # Install required dependencies
 RUN apt update && apt install -y \
@@ -16,7 +18,7 @@ RUN apt update && apt install -y \
 RUN curl -fsSL https://ollama.com/install.sh | sh
 
 # Copy the downloaded models into Ollama's model directory
-COPY --from=models /models/ $MODEL_PATH
+COPY models/ $OLLAMA_MODELS/
 
 # Expose Ollama's default port (if needed)
 EXPOSE 11434

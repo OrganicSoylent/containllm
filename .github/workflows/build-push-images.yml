@@ -41,7 +41,6 @@ jobs:
           ollama list
 
           ls -la $OLLAMA_MODELS
-
       - name: Upload model as artifact
         uses: actions/upload-artifact@v4
         with:
