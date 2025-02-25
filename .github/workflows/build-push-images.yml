@@ -19,11 +19,8 @@ jobs:
   download-model:
     runs-on: ubuntu-latest
     steps:
-      - name: Install Ollama
+      - name: Install Ollama and start Ollama
         run: curl -fsSL https://ollama.com/install.sh | sh 
-
-      - name: Start Ollama and Pull Model
-        run: |
           echo "Starting Ollama server in the background..."
           ollama serve &
 
@@ -33,20 +30,23 @@ jobs:
           done
 
           echo "Ollama server is running. Pulling model..."
+
+      - name:  Pull Model
+        run: |
           ollama pull $MODEL_NAME
 
           ollama list
 
-          ls -a ~/.ollama/
+          find ~ -type d -name "models"
 
-          sudo chown -R $(whoami):$(whoami) ~/.ollama/models/
-          sudo chmod -R 755 ~/.ollama/models/
+          sudo chown -R $(whoami):$(whoami) home/.ollama/models/
+          sudo chmod -R 755 home/.ollama/models/
 
       - name: Upload model as artifact
         uses: actions/upload-artifact@v4
         with:
           name: ollama-model
-          path: ~/.ollama/models/
+          path: home/.ollama/models/
 
   build-image-ollama:
     needs: download-model
