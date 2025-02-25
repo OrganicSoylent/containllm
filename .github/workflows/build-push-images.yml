@@ -21,7 +21,7 @@ jobs:
       with:
         fetch-depth: 0
     - name: Log in to ghcr
-      uses: docker/login-action@v3
+      uses: docker/login-action@v4
       with:
         registry: ghcr.io
         username: ${{ github.actor }}
@@ -32,7 +32,7 @@ jobs:
     - name: Save image for testing
       run: docker save ghcr.io/${{ github.repository_owner }}/ollama:latest -o ollama.tar
     - name: Upload image as artifact
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: ollama
         path: ollama.tar
@@ -42,7 +42,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Download ollama image
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: ollama
       - name: Load Docker images
@@ -57,13 +57,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Log in to GitHub Container Registry
-        uses: docker/login-action@v3
+        uses: docker/login-action@v4
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: Download Ollama image
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: ollama
       - name: Load and Push Ollama image
@@ -80,7 +80,7 @@ jobs:
       with:
         fetch-depth: 0
     - name: Log in to ghcr
-      uses: docker/login-action@v3
+      uses: docker/login-action@v4
       with:
         registry: ghcr.io
         username: ${{ github.actor }}
@@ -91,7 +91,7 @@ jobs:
     - name: Save image for testing
       run: docker save ghcr.io/${{ github.repository_owner }}/crewai:latest -o crewai.tar
     - name: Upload image as artifact
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: crewai
         path: crewai.tar
@@ -101,7 +101,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Download crewai image
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: crewai
       - name: Load Docker images
@@ -116,13 +116,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Log in to GitHub Container Registry
-        uses: docker/login-action@v3
+        uses: docker/login-action@v4
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: Download CrewAI image
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: crewai
       - name: Load and Push CrewAI image
