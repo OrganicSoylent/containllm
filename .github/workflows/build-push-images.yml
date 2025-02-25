@@ -28,9 +28,9 @@ jobs:
         password: ${{ secrets.GITHUB_TOKEN }}
     - name: Build & Push Ollama image
       run: |
-        docker build -t ghcr.io/${{ github.repository_owner }}/ollama:latest ollama-deployment/
+        docker build -t ghcr.io/organicsoylent/ollama:latest ollama-deployment/
     - name: Save image for testing
-      run: docker save ghcr.io/${{ github.repository_owner }}/ollama:latest -o ollama.tar
+      run: docker save ghcr.io/organicsoylent/ollama:latest -o ollama.tar
     - name: Upload image as artifact
       uses: actions/upload-artifact@v4
       with:
@@ -50,7 +50,7 @@ jobs:
           docker load -i ollama.tar
       - name: Run ollama and test
         run: |
-          docker run --rm --name ollama-test ghcr.io/${{ github.repository_owner }}/ollama:latest ollama list | grep "deepseek-r1:1.5b" || exit 1
+          docker run --rm --name ollama-test ghcr.io/organicsoylent/ollama:latest ollama list | grep "deepseek-r1:1.5b" || exit 1
 
   push-ollama:
     needs: test-ollama
@@ -69,7 +69,7 @@ jobs:
       - name: Load and Push Ollama image
         run: |
           docker load -i ollama.tar
-          docker push ghcr.io/${{ github.repository_owner }}/ollama:latest
+          docker push ghcr.io/organicsoylent/ollama:latest
 
 #### CrewAI Section ####
   build-image-crewai:
@@ -87,9 +87,9 @@ jobs:
         password: ${{ secrets.GITHUB_TOKEN }}
     - name: Build & Push CrewAI image
       run: |
-        docker build -t ghcr.io/${{ github.repository_owner }}/crewai:latest crewai-deployment/
+        docker build -t ghcr.io/organicsoylent/crewai:latest crewai-deployment/
     - name: Save image for testing
-      run: docker save ghcr.io/${{ github.repository_owner }}/crewai:latest -o crewai.tar
+      run: docker save ghcr.io/organicsoylent/crewai:latest -o crewai.tar
     - name: Upload image as artifact
       uses: actions/upload-artifact@v4
       with:
@@ -109,7 +109,7 @@ jobs:
           docker load -i crewai.tar
       - name: Run crewai and test
         run: |
-          docker run --rm ghcr.io/${{ github.repository_owner }}/crewai:latest python -c "import sys; print('Python is working:', sys.version)"
+          docker run --rm ghcr.io/organicsoylent/crewai:latest python -c "import sys; print('Python is working:', sys.version)"
 
   push-crewai:
     needs: test-crewai
@@ -128,7 +128,7 @@ jobs:
       - name: Load and Push CrewAI image
         run: |
           docker load -i crewai.tar
-          docker push ghcr.io/${{ github.repository_owner }}/crewai:latest
+          docker push ghcr.io/organicsoylent/crewai:latest
 
 
 
