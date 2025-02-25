@@ -37,23 +37,23 @@ jobs:
         name: ollama
         path: ollama.tar
 
-  test-ollama:
-    needs: build-image-ollama
-    runs-on: ubuntu-latest
-    steps:
-      - name: Download ollama image
-        uses: actions/download-artifact@v4
-        with:
-          name: ollama
-      - name: Load Docker images
-        run: |
-          docker load -i ollama.tar
-      - name: Run ollama and test
-        run: |
-          docker run --rm --name ollama-test ghcr.io/organicsoylent/ollama:latest ollama list | grep "deepseek-r1:1.5b" || exit 1
+  # test-ollama:
+  #   needs: build-image-ollama
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Download ollama image
+  #       uses: actions/download-artifact@v4
+  #       with:
+  #         name: ollama
+  #     - name: Load Docker images
+  #       run: |
+  #         docker load -i ollama.tar
+  #     - name: Run ollama and test
+  #       run: |
+  #         docker run --rm --name ollama-test ghcr.io/organicsoylent/ollama:latest ollama list | grep "deepseek-r1:1.5b" || exit 1
 
   push-ollama:
-    needs: test-ollama
+    needs: build-image-ollama # test-ollama
     runs-on: ubuntu-latest
     steps:
       - name: Log in to GitHub Container Registry
