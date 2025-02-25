@@ -21,6 +21,7 @@ jobs:
     steps:
       - name: Install Ollama and start Ollama
         run: |
+          ls -a
           curl -fsSL https://ollama.com/install.sh | sh 
 
           echo "Starting Ollama server in the background..."
@@ -32,17 +33,17 @@ jobs:
           done
 
           echo "Ollama server is running. Pulling model..."
-
-      - name:  Pull Model
-        run: |
           ollama pull $MODEL_NAME
 
           ollama list
 
-          find ~ -type d -name "models"
+          find -name "models"
 
-          sudo chown -R $(whoami):$(whoami) home/.ollama/models/
-          sudo chmod -R 755 home/.ollama/models/
+      # sudo chown -R $(whoami):$(whoami) home/.ollama/models/
+      # sudo chmod -R 755 home/.ollama/models/
+
+      # - name:  Pull Model
+      #   run: |
 
       - name: Upload model as artifact
         uses: actions/upload-artifact@v4
