@@ -17,6 +17,9 @@ RUN apt update && apt install -y \
 # Install Ollama
 RUN curl -fsSL https://ollama.com/install.sh | sh
 
+# Set WORKDIR for clarity
+WORKDIR $OLLAMA_MODELS
+
 # Copy the downloaded models into Ollama's model directory
 COPY models/ $OLLAMA_MODELS/
 

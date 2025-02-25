@@ -59,7 +59,7 @@ jobs:
       uses: actions/download-artifact@v4
       with:
         name: ollama-model
-        path: ollama-models/
+        path: ollama-deployment/models/
     - name: Log in to ghcr
       uses: docker/login-action@v3
       with:
@@ -72,7 +72,6 @@ jobs:
           --build-arg MODEL_NAME=$MODEL_NAME \
           -t ghcr.io/organicsoylent/ollama:latest \
           --file ollama-deployment/Dockerfile \
-          --build-context models=ollama-models/ \
           ollama-deployment/
     - name: Save image for testing
       run: docker save ghcr.io/organicsoylent/ollama:latest -o ollama.tar
