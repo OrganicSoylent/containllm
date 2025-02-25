@@ -37,7 +37,7 @@ jobs:
         name: ollama
         path: ollama.tar
 
-  test-ollama-image:
+  test-ollama:
     needs: build-image-ollama
     runs-on: ubuntu-latest
     steps:
@@ -96,7 +96,7 @@ jobs:
         name: crewai
         path: crewai.tar
 
-  test-crewai-image:
+  test-crewai:
     needs: build-image-crewai
     runs-on: ubuntu-latest
     steps:
@@ -121,12 +121,10 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-
       - name: Download CrewAI image
         uses: actions/download-artifact@v3
         with:
           name: crewai
-
       - name: Load and Push CrewAI image
         run: |
           docker load -i crewai.tar
