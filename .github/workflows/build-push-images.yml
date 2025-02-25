@@ -35,8 +35,10 @@ jobs:
           echo "Ollama server is running. Pulling model..."
           ollama pull $MODEL_NAME
 
-          sudo chown -R $(whoami):$(whoami) /root/.ollama/models/
-          sudo chmod -R 755 /root/.ollama/models/
+          ollama list
+
+          sudo chown -R $(whoami):$(whoami) ~/.ollama/models/
+          sudo chmod -R 755 ~/.ollama/models/
 
       - name: Upload model as artifact
         uses: actions/upload-artifact@v4
