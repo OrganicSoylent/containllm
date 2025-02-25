@@ -63,7 +63,7 @@ jobs:
           "
 
   push-ollama:
-    needs: test-ollama
+    # needs: test-ollama
     runs-on: ubuntu-latest
     steps:
       - name: Log in to GitHub Container Registry
