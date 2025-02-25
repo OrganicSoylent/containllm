@@ -20,7 +20,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Install Ollama and start Ollama
-        run: curl -fsSL https://ollama.com/install.sh | sh 
+        run: |
+          curl -fsSL https://ollama.com/install.sh | sh 
+
           echo "Starting Ollama server in the background..."
           ollama serve &
 
