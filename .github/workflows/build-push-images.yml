@@ -28,6 +28,9 @@ jobs:
 
           curl -fsSL https://ollama.com/install.sh | sh
 
+          export OLLAMA_MODELS=$OLLAMA_MODELS
+          echo "OLLAMA_MODELS is set to: $OLLAMA_MODELS"
+
           echo "Starting Ollama server in the background..."
           ollama serve &
 
@@ -42,8 +45,6 @@ jobs:
           ollama list
 
           ls -la $OLLAMA_MODELS
-          find / -type d -name "models" 2>/dev/null
-          
       - name: Compress model before upload
         run: tar -czvf ollama-model.tar.gz -C $OLLAMA_MODELS .
       - name: Upload model as artifact
