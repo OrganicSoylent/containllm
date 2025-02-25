@@ -4,8 +4,7 @@
 __I. Cluster Quickstart__
 1. [Enable Nvidia runtime in Docker](#1-enable-nvidia-runtime-in-docker)
 2. [Start the Cluster](#2-start-the-cluster)
-3. [Check if registry is enabled](#3-check-if-registry-is-enabled)
-4. [Enable outside access to cluster](#4-enable-outside-access-to-cluster)
+3. [Enable outside access to cluster](#3-enable-outside-access-to-cluster)
 
 __II. Applications Quickstart__
 1. [Ollama](#1-ollama)
@@ -17,18 +16,11 @@ __III. Optional Tools__
 2. [ArgoCD](#2-argocd)
 
 __IV. Prerequesits__
-
-_1. Minikube_
 1. [Install Docker in WSL 2](#1-install-docker-in-wsl-2)
 2. [Install Minikube prerequisites](#2-install-minikube-prerequisites)
 3. [Install Minikube](#3-install-minikube)
 4. [Install kubectl and set context to Minikube](#4-install-kubectl-and-set-context-to-minikube)
 5. [Install Helm](#5-install-helm)
-
-_2. Build Docker Images_
-1. [Build CrewAI Image](#1-build-crewai-image)
-2. [Save Ollama Image locally](#2-save-ollama-image-locally)
-3. [Save OpenWebUI Image locally](#3-save-openwebui-image-locally)
 
 __V. Troubleshooting__
 1. [Troubleshooting nvidia-container-runtime](#1-troubleshooting-nvidia-container-runtime)
@@ -54,25 +46,9 @@ If this doesn't work, go to the [troubleshooting section](#troubleshooting-nvidi
 Starts Minikube cluster with GPU usage and an internal image registry enabled
 ```
 minikube start --driver docker --container-runtime docker --gpus all
-
-## --addons=registry --insecure-registry="192.168.49.2:5000"
-```
-_Note: The IP address of the registry needs to be set in the docker daemon.json first ([reference](#configure-docker-daemon))_
-
-### 3. Check if registry is enabled
-This is required to use prebuilt images for crewai and ollama. Requires building images from Dockerfile first ([reference]())
-```
-kubectl get svc -n kube-system | grep registry
-```
-optional: check if IP address is the same as in docker daemon.json
-```
-minikube ip
-
-# If the registry is not running, you can start it with this command
-minikube addons enable registry
 ```
 
-### 4. Enable outside access to cluster
+### 3. Enable outside access to cluster
 To enable access to apps on the cluster, run this in a second terminal __and keep it running__:
 ```
 minikube tunnel
@@ -81,14 +57,7 @@ _Note: When deploying a LoadBalancer to the cluster, you will have to provide yo
 
 ## II. Applications Quickstart
 ### 1. Ollama
-_Note: Step requires prebuilt container images_ ([reference](#build-docker-images))
 
-Push the docker image from your local registry to the registry in the cluster
-```
-docker image ls
-
-docker push 192.168.49.2:5000/ollama:latest
-```
 Deploys the kubernetes resources
 ```
 kubectl apply -f ./ollama-deployment/.
@@ -106,14 +75,6 @@ kubectl exec pod/<ollama-pod> -n ollama -- ollama pull deepseek-r1:1.5b
 _Note: you can also to this through the Kubernetes dashboard._
 
 ### 2. CrewAI
-_Note: Step requires prebuilt container images_ ([reference](#build-docker-images))
-
-Push the docker image from your local registry to the registry in the cluster
-```
-docker image ls
-
-docker push 192.168.49.2:5000/crewai:latest
-```
 Apply the deployment
 ```
 kubectl apply -f ./crewai-deployment/.
@@ -124,14 +85,6 @@ kubectl get pods -n crewai
 ```
 
 ### 3. OpenwebUI
-_Note: Step requires prebuilt container images_ ([reference](#build-docker-images))
-
-Push the docker image from your local registry to the registry in the cluster
-```
-docker image ls
-
-docker push 192.168.49.2:5000/openwebui:latest
-```
 Deploy Kubernetes resources
 ```
 kubectl apply -f ./openwebui-deployment/.
@@ -267,33 +220,6 @@ curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scrip
 chmod 700 get_helm.sh
 
 ./get_helm.sh
-```
-
-### Build docker images
-#### 1. Build CrewAI Image
-Tag is set to push into the registry run in minikube
-```
-docker build -t 192.168.49.2:5000/crewai:latest ./crewai-deployment/.
-```
-#### 2. Save Ollama Image locally
-Ollama is already a prebuilt image which can be pulled and stored locally from Dockerhub
-Tag is set to push into the registry run in minikube
-```
-docker pull ollama/ollama
-
-docker tag ollama/ollama:latest 192.168.49.2:5000/ollama:latest
-
-docker image rm ollama/ollama:latest
-```
-
-#### 3. Save OpenWebUI Image locally
-OpenwebUI is already a prebuilt image which can be pulled and stored locally from Github Container Registry
-```
-docker pull ghcr.io/open-webui/open-webui:main
-
-docker tag ghcr.io/open-webui/open-webui:main 192.168.49.2:5000/openwebui:latest
-
-docker image rm ghcr.io/open-webui/open-webui:main
 ```
 
 ## V. Troubleshooting
