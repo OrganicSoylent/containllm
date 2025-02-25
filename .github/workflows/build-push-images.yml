@@ -24,6 +24,7 @@ jobs:
       - name: Install Ollama and start Ollama
         run: |
           mkdir -p /home/runner/work/containllm/containllm/models
+          chmod -R 777 $OLLAMA_MODELS
 
           curl -fsSL https://ollama.com/install.sh | sh
 
@@ -41,11 +42,15 @@ jobs:
           ollama list
 
           ls -la $OLLAMA_MODELS
+          find / -type d -name "models" 2>/dev/null
+          
+      - name: Compress model before upload
+        run: tar -czvf ollama-model.tar.gz -C $OLLAMA_MODELS .
       - name: Upload model as artifact
         uses: actions/upload-artifact@v4
         with:
           name: ollama-model
-          path: /home/runner/work/containllm/containllm/models/
+          path: ollama-model.tar.gz
 
   build-image-ollama:
     needs: download-model
@@ -55,11 +60,13 @@ jobs:
       uses: actions/checkout@v4
       with:
         fetch-depth: 0
-    - name: Download the model artifact
+    - name: Download and model artifact
       uses: actions/download-artifact@v4
       with:
         name: ollama-model
         path: ollama-deployment/models/
+    - name: Extract model
+      run: tar -xzvf ollama-deployment/models/ollama-model.tar.gz -C ollama-deployment/models/
     - name: Log in to ghcr
       uses: docker/login-action@v3
       with:
