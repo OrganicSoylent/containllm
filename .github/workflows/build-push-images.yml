@@ -22,8 +22,6 @@ jobs:
       - name: Install Ollama
         run: curl -fsSL https://ollama.com/install.sh | sh 
 
-      - name: Start Ollama and Pull Model
-        run: |
           echo "Starting Ollama server in the background..."
           ollama serve &
 
@@ -37,7 +35,7 @@ jobs:
 
           ollama list
 
-          ls -a ~/.ollama
+          ls -a ~/.ollama/
 
           sudo chown -R $(whoami):$(whoami) ~/.ollama/models/
           sudo chmod -R 755 ~/.ollama/models/
