@@ -37,19 +37,16 @@ jobs:
 
           ollama list
 
-          find $HOME -type d -iname "deepseek" 
+          ls -a /home/runner/work/containllm/containllm/
 
-      # sudo chown -R $(whoami):$(whoami) home/.ollama/models/
-      # sudo chmod -R 755 home/.ollama/models/
-
-      # - name:  Pull Model
-      #   run: |
+          sudo chown -R $(whoami):$(whoami) /home/runner/work/containllm/containllm/.ollama/models/
+          sudo chmod -R 755 /home/runner/work/containllm/containllm/.ollama/models/
 
       - name: Upload model as artifact
         uses: actions/upload-artifact@v4
         with:
           name: ollama-model
-          path: home/.ollama/models/
+          path: /home/runner/work/containllm/containllm/.ollama/models/
 
   build-image-ollama:
     needs: download-model
