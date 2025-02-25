@@ -22,6 +22,8 @@ jobs:
       - name: Install Ollama
         run: curl -fsSL https://ollama.com/install.sh | sh 
 
+      - name: Start Ollama and Pull Model
+        run: |
           echo "Starting Ollama server in the background..."
           ollama serve &
 
