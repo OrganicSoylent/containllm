@@ -14,10 +14,8 @@ RUN apt update && apt install -y \
 # Install Ollama
 RUN curl -fsSL https://ollama.com/install.sh | sh
 
-# Inject downloaded model
-ARG MODEL_PATH
-COPY ${MODEL_PATH} /root/.ollama/models/
-
+# Copy the downloaded models from the build context
+COPY --from=models /root/.ollama/models/ /root/.ollama/models/
 
 # Expose Ollama's default port (if needed)
 EXPOSE 11434

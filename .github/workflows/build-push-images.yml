@@ -16,30 +16,29 @@ env:
 
 jobs:
 #### Ollama Section ####
-download-model:
-  runs-on: ubuntu-latest
-  steps:
-    - name: Install Ollama
-      run: curl -fsSL https://ollama.com/install.sh | sh 
+  download-model:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install Ollama
+        run: curl -fsSL https://ollama.com/install.sh | sh 
 
-    - name: Start Ollama and Pull Model
-      run: |
-        echo "Starting Ollama server in the background..."
-        ollama serve &
+      - name: Start Ollama and Pull Model
+        run: |
+          echo "Starting Ollama server in the background..."
+          ollama serve &
 
-        echo "Waiting for Ollama server to be active..."
-        while ! ollama list >/dev/null 2>&1; do
-          sleep 1
-        done
+          echo "Waiting for Ollama server to be active..."
+          while ! ollama list >/dev/null 2>&1; do
+            sleep 1
+          done
 
-        echo "Ollama server is running. Pulling model..."
-        ollama pull $MODEL_NAME
-
-    - name: Upload model as artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: ollama-model
-        path: /root/.ollama/models/
+          echo "Ollama server is running. Pulling model..."
+          ollama pull $MODEL_NAME
+      - name: Upload model as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ollama-model
+          path: /root/.ollama/models/
 
   build-image-ollama:
     needs: download-model
