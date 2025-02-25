@@ -21,7 +21,7 @@ jobs:
     steps:
       - name: Install Ollama and start Ollama
         run: |
-          ls -a
+          pwd
           curl -fsSL https://ollama.com/install.sh | sh 
 
           echo "Starting Ollama server in the background..."
@@ -37,7 +37,7 @@ jobs:
 
           ollama list
 
-          find -name "models"
+          find $HOME -type d -iname "deepseek" 
 
       # sudo chown -R $(whoami):$(whoami) home/.ollama/models/
       # sudo chmod -R 755 home/.ollama/models/
