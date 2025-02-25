@@ -37,6 +37,8 @@ jobs:
 
           ollama list
 
+          ls -a ~/.ollama
+
           sudo chown -R $(whoami):$(whoami) ~/.ollama/models/
           sudo chmod -R 755 ~/.ollama/models/
 
@@ -44,7 +46,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: ollama-model
-          path: /root/.ollama/models/
+          path: ~/.ollama/models/
 
   build-image-ollama:
     needs: download-model
@@ -123,61 +125,61 @@ jobs:
           docker push ghcr.io/organicsoylent/ollama:latest
 
 #### CrewAI Section ####
-  build-image-crewai:
-    runs-on: ubuntu-latest
-    steps:
-    - name: Checkout repo
-      uses: actions/checkout@v4
-      with:
-        fetch-depth: 0
-    - name: Log in to ghcr
-      uses: docker/login-action@v3
-      with:
-        registry: ghcr.io
-        username: ${{ github.actor }}
-        password: ${{ secrets.GITHUB_TOKEN }}
-    - name: Build & Push CrewAI image
-      run: |
-        docker build -t ghcr.io/organicsoylent/crewai:latest crewai-deployment/
-    - name: Save image for testing
-      run: docker save ghcr.io/organicsoylent/crewai:latest -o crewai.tar
-    - name: Upload image as artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: crewai
-        path: crewai.tar
+  # build-image-crewai:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #   - name: Checkout repo
+  #     uses: actions/checkout@v4
+  #     with:
+  #       fetch-depth: 0
+  #   - name: Log in to ghcr
+  #     uses: docker/login-action@v3
+  #     with:
+  #       registry: ghcr.io
+  #       username: ${{ github.actor }}
+  #       password: ${{ secrets.GITHUB_TOKEN }}
+  #   - name: Build & Push CrewAI image
+  #     run: |
+  #       docker build -t ghcr.io/organicsoylent/crewai:latest crewai-deployment/
+  #   - name: Save image for testing
+  #     run: docker save ghcr.io/organicsoylent/crewai:latest -o crewai.tar
+  #   - name: Upload image as artifact
+  #     uses: actions/upload-artifact@v4
+  #     with:
+  #       name: crewai
+  #       path: crewai.tar
 
-  test-crewai:
-    needs: build-image-crewai
-    runs-on: ubuntu-latest
-    steps:
-      - name: Download crewai image
-        uses: actions/download-artifact@v4
-        with:
-          name: crewai
-      - name: Load Docker images
-        run: |
-          docker load -i crewai.tar
-      - name: Run crewai and test
-        run: |
-          docker run --rm ghcr.io/organicsoylent/crewai:latest python -c "import sys; print('Python is working:', sys.version)"
+  # test-crewai:
+  #   needs: build-image-crewai
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Download crewai image
+  #       uses: actions/download-artifact@v4
+  #       with:
+  #         name: crewai
+  #     - name: Load Docker images
+  #       run: |
+  #         docker load -i crewai.tar
+  #     - name: Run crewai and test
+  #       run: |
+  #         docker run --rm ghcr.io/organicsoylent/crewai:latest python -c "import sys; print('Python is working:', sys.version)"
 
-  push-crewai:
-    needs: test-crewai
-    runs-on: ubuntu-latest
-    steps:
-      - name: Log in to GitHub Container Registry
-        uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-      - name: Download CrewAI image
-        uses: actions/download-artifact@v4
-        with:
-          name: crewai
-      - name: Load and Push CrewAI image
-        run: |
-          docker load -i crewai.tar
-          docker push ghcr.io/organicsoylent/crewai:latest
+  # push-crewai:
+  #   needs: test-crewai
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Log in to GitHub Container Registry
+  #       uses: docker/login-action@v3
+  #       with:
+  #         registry: ghcr.io
+  #         username: ${{ github.actor }}
+  #         password: ${{ secrets.GITHUB_TOKEN }}
+  #     - name: Download CrewAI image
+  #       uses: actions/download-artifact@v4
+  #       with:
+  #         name: crewai
+  #     - name: Load and Push CrewAI image
+  #       run: |
+  #         docker load -i crewai.tar
+  #         docker push ghcr.io/organicsoylent/crewai:latest
 
