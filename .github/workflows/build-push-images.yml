@@ -23,8 +23,7 @@ jobs:
         run: |
           curl -fsSL https://ollama.com/install.sh | sh
 
-          export BASE_PATH=pwd
-          export OLLAMA_MODELS=$BASE_PATH/models/
+          export OLLAMA_MODELS=/home/runner/work/containllm/containllm/models/
 
           echo "Starting Ollama server in the background..."
           ollama serve &
@@ -39,7 +38,7 @@ jobs:
 
           ollama list
 
-          ls -a $BASE_PATH/models/
+          ls -a /home/runner/work/containllm/containllm/models/
 
       # sudo chown -R $(whoami):$(whoami) /home/runner/work/containllm/containllm/.ollama/models/
       # sudo chmod -R 755 /home/runner/work/containllm/containllm/.ollama/models/
