@@ -23,6 +23,8 @@ jobs:
     steps:
       - name: Install Ollama and start Ollama
         run: |
+          mkdir -p /home/runner/work/containllm/containllm/models
+
           curl -fsSL https://ollama.com/install.sh | sh
 
           echo "Starting Ollama server in the background..."
