@@ -1,4 +1,5 @@
-FROM ubuntu:22.04 AS final
+# FROM ubuntu:22.04 AS final
+FROM nvidia/cuda:12.3.2-runtime-ubuntu22.04 AS final
 
 # Set non-interactive mode to avoid prompts during installation
 ENV DEBIAN_FRONTEND=noninteractive

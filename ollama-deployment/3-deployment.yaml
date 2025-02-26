@@ -21,7 +21,8 @@ spec:
         ports:
         - containerPort: 11434
         volumeMounts:
-        - mountPath: /root/.ollama
+        # - mountPath: /root/.ollama
+        - mountPath: /models
           name: ollama-storage
         env:
         - name: OLLAMA_MODEL
