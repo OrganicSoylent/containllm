@@ -24,6 +24,7 @@ WORKDIR $OLLAMA_MODELS
 # Copy the downloaded models into Ollama's model directory
 COPY models/ $OLLAMA_MODELS/
 
+RUN ls -la $OLLAMA_MODELS/
 # Expose Ollama's default port (if needed)
 EXPOSE 11434
 
