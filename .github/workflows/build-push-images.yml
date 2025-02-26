@@ -76,9 +76,12 @@ jobs:
       uses: actions/download-artifact@v4
       with:
         name: ollama-model
-        path: ollama-deployment/models/
+        path: models/
     - name: Extract model
-      run: tar -xzvf ollama-deployment/models/ollama-model.tar.gz -C ollama-deployment/models/
+      run: |
+        ls -la models/
+        ls -la ollama-deployment/
+        tar -xzvf ollama-deployment/models/ollama-model.tar.gz -C ollama-deployment/models/
     - name: Log in to ghcr
       uses: docker/login-action@v3
       with:
