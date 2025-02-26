@@ -27,9 +27,13 @@ jobs:
     env:
       OLLAMA_MODELS: /home/runner/work/containllm/containllm/models/
     steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - name: Install Ollama and start Ollama
-        run: |
-          ls -la # mkdir -p /home/runner/work/containllm/containllm/models
+        run: | # mkdir -p /home/runner/work/containllm/containllm/models
+          ls -la 
           chmod -R 777 $OLLAMA_MODELS
 
           curl -fsSL https://ollama.com/install.sh | sh
