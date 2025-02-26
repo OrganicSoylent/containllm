@@ -29,7 +29,7 @@ jobs:
     steps:
       - name: Install Ollama and start Ollama
         run: |
-          mkdir -p /home/runner/work/containllm/containllm/models
+          ls -la # mkdir -p /home/runner/work/containllm/containllm/models
           chmod -R 777 $OLLAMA_MODELS
 
           curl -fsSL https://ollama.com/install.sh | sh
@@ -115,8 +115,9 @@ jobs:
               while ! ollama list >/dev/null 2>&1; do 
                   echo 'Waiting for Ollama to start...'; 
                   sleep 1; 
-              done; 
-              ollama list | grep 'deepseek-r1:1.5b' || exit 1
+              done;
+              ollama list
+              ollama list | grep $MODEL_NAME || exit 1
           "
 
   push-ollama:
