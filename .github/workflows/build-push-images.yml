@@ -22,6 +22,7 @@ env:
 
 jobs:
   preparation:
+    runs-on: ubuntu-latest
     steps:
     - name: Log in to GHCR
       uses: docker/login-action@v3
@@ -42,7 +43,7 @@ jobs:
 
         echo "Cleaning up unused Docker layers..."
         docker system prune -a -f --volumes
-        
+
         echo "Checking available disk space after cleanup:"
         df -h
 
