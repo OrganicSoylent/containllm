@@ -17,12 +17,12 @@ spec:
     spec:
       containers:
       - name: ollama
-        image: ghcr.io/organicsoylent/ollama:latest # local: 192.168.49.2:5000/ollama:latest # original: ollama/ollama:latest
+        image: ollama/ollama:latest # ghcr.io/organicsoylent/ollama:latest # original: ollama/ollama:latest
         ports:
         - containerPort: 11434
         volumeMounts:
-        # - mountPath: /root/.ollama
-        - mountPath: /models
+        - mountPath: /root/.ollama
+        # - mountPath: /models
           name: ollama-storage
         env:
         - name: OLLAMA_MODEL

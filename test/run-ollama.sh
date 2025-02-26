@@ -12,6 +12,8 @@ done
 echo "Ollama server is running. Pulling model..."
 ollama pull "$MODEL_NAME" # deepseek-r1:1.5b
 
+ollama cp ## WIP
+
 echo "Stopping Ollama server..."
 pkill -f "ollama serve"
 

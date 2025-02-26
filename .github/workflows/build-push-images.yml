@@ -21,8 +21,34 @@ env:
   MODEL_NAME: "deepseek-r1:1.5b"
 
 jobs:
+  preparation:
+    steps:
+    - name: Log in to GHCR
+      uses: docker/login-action@v3
+      with:
+        registry: ghcr.io
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+    - name: Cleaning up & freeing disk space
+      run: |
+        echo "Checking initial disk space:"
+        df -h
+
+        echo "Removing APT package caches..."
+        sudo apt-get clean
+        sudo rm -rf /var/lib/apt/lists/*
+
+        docker image ls
+
+        echo "Cleaning up unused Docker layers..."
+        docker system prune -a -f --volumes
+        
+        echo "Checking available disk space after cleanup:"
+        df -h
+
 #### Ollama Section ####
   download-model:
+    needs: [preparation]
     runs-on: ubuntu-latest
     env:
       OLLAMA_MODELS: /home/runner/work/containllm/containllm/models/
@@ -65,7 +91,7 @@ jobs:
           retention-days: 1
 
   build-image-ollama:
-    needs: download-model
+    needs: [preparation, download-model]
     runs-on: ubuntu-latest
     steps:
     - name: Checkout repo
@@ -105,7 +131,7 @@ jobs:
         retention-days: 1
 
   test-ollama:
-    needs: build-image-ollama
+    needs: [preparation, build-image-ollama]
     runs-on: ubuntu-latest
     steps:
       - name: Download ollama image
@@ -128,7 +154,7 @@ jobs:
           "
 
   push-ollama:
-    needs: test-ollama
+    needs: [preparation, test-ollama]
     runs-on: ubuntu-latest
     steps:
       - name: Log in to GitHub Container Registry
@@ -147,64 +173,65 @@ jobs:
           docker push ghcr.io/organicsoylent/ollama:latest
 
 #### CrewAI Section ####
-  build-image-crewai:
-    runs-on: ubuntu-latest
-    steps:
-    - name: Checkout repo
-      uses: actions/checkout@v4
-      with:
-        fetch-depth: 0
-    - name: Log in to ghcr
-      uses: docker/login-action@v3
-      with:
-        registry: ghcr.io
-        username: ${{ github.actor }}
-        password: ${{ secrets.GITHUB_TOKEN }}
-    - name: Build & Push CrewAI image
-      run: |
-        docker build -t ghcr.io/organicsoylent/crewai:latest crewai-deployment/
-    - name: Save image for testing
-      run: docker save ghcr.io/organicsoylent/crewai:latest -o crewai.tar
-    - name: Upload image as artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: crewai
-        path: crewai.tar
-        retention-days: 1
+  # build-image-crewai:
+  #   needs: [preparation]
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #   - name: Checkout repo
+  #     uses: actions/checkout@v4
+  #     with:
+  #       fetch-depth: 0
+  #   - name: Log in to ghcr
+  #     uses: docker/login-action@v3
+  #     with:
+  #       registry: ghcr.io
+  #       username: ${{ github.actor }}
+  #       password: ${{ secrets.GITHUB_TOKEN }}
+  #   - name: Build & Push CrewAI image
+  #     run: |
+  #       docker build -t ghcr.io/organicsoylent/crewai:latest crewai-deployment/
+  #   - name: Save image for testing
+  #     run: docker save ghcr.io/organicsoylent/crewai:latest -o crewai.tar
+  #   - name: Upload image as artifact
+  #     uses: actions/upload-artifact@v4
+  #     with:
+  #       name: crewai
+  #       path: crewai.tar
+  #       retention-days: 1
 
-  test-crewai:
-    needs: build-image-crewai
-    runs-on: ubuntu-latest
-    steps:
-      - name: Download crewai image
-        uses: actions/download-artifact@v4
-        with:
-          name: crewai
-      - name: Load Docker images
-        run: |
-          docker load -i crewai.tar
-      - name: Run crewai and test
-        run: |
-          docker run --rm ghcr.io/organicsoylent/crewai:latest python -c "import sys; print('Python is working:', sys.version)"
+  # test-crewai:
+  #   needs: [preparation, build-image-crewai]
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Download crewai image
+  #       uses: actions/download-artifact@v4
+  #       with:
+  #         name: crewai
+  #     - name: Load Docker images
+  #       run: |
+  #         docker load -i crewai.tar
+  #     - name: Run crewai and test
+  #       run: |
+  #         docker run --rm ghcr.io/organicsoylent/crewai:latest python -c "import sys; print('Python is working:', sys.version)"
 
-  push-crewai:
-    needs: test-crewai
-    runs-on: ubuntu-latest
-    steps:
-      - name: Log in to GitHub Container Registry
-        uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-      - name: Download CrewAI image
-        uses: actions/download-artifact@v4
-        with:
-          name: crewai
-      - name: Load and Push CrewAI image
-        run: |
-          docker load -i crewai.tar
-          docker push ghcr.io/organicsoylent/crewai:latest
+  # push-crewai:
+  #   needs: [preparation, test-crewai]
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Log in to GitHub Container Registry
+  #       uses: docker/login-action@v3
+  #       with:
+  #         registry: ghcr.io
+  #         username: ${{ github.actor }}
+  #         password: ${{ secrets.GITHUB_TOKEN }}
+  #     - name: Download CrewAI image
+  #       uses: actions/download-artifact@v4
+  #       with:
+  #         name: crewai
+  #     - name: Load and Push CrewAI image
+  #       run: |
+  #         docker load -i crewai.tar
+  #         docker push ghcr.io/organicsoylent/crewai:latest
 
   cleanup-artifacts:
     if: always() 
