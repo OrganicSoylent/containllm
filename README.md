@@ -43,11 +43,14 @@ sudo systemctl restart docker
 If this doesn't work, go to the [troubleshooting section](#troubleshooting-nvidia-container-runtime).
 
 ### 2. Start the Cluster
-Starts Minikube cluster with GPU usage and an internal image registry enabled
+Starts Minikube cluster with GPU usage.
 ```
 minikube start --driver docker --container-runtime docker --gpus all
 ```
-
+The same __without__ GPU usage.
+```
+minikube start --driver docker --container-runtime docker
+```
 ### 3. Enable outside access to cluster
 To enable access to apps on the cluster, run this in a second terminal __and keep it running__:
 ```
@@ -66,13 +69,7 @@ Check deployment progress
 ```
 kubectl get pods -n ollama
 ```
-__Will be deprecated in future:__
-
-To make a model available in the openweb-ui, you have to pull it in the ollama-pod first. Deploys the smallest available deepseek model:
-```
-kubectl exec pod/<ollama-pod> -n ollama -- ollama pull deepseek-r1:1.5b
-```
-_Note: you can also to this through the Kubernetes dashboard._
+The ollama container comes with a preinstalled deepseek-r1 model (1.5b parameters).
 
 ### 2. CrewAI
 Apply the deployment
