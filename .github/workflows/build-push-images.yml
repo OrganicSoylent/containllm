@@ -25,11 +25,11 @@ jobs:
   download-model:
     runs-on: ubuntu-latest
     env:
-      OLLAMA_MODELS: /home/runner/work/containllm/containllm/ollama-deployment/models/
+      OLLAMA_MODELS: /home/runner/work/containllm/containllm/models/
     steps:
       - name: Install Ollama and start Ollama
         run: |
-          mkdir -p /home/runner/work/containllm/containllm/ollama-deployment/models
+          mkdir -p /home/runner/work/containllm/containllm/models
           chmod -R 777 $OLLAMA_MODELS
 
           curl -fsSL https://ollama.com/install.sh | sh
