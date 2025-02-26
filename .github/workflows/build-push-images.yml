@@ -94,7 +94,7 @@ jobs:
           --build-arg MODEL_NAME=$MODEL_NAME \
           -t ghcr.io/organicsoylent/ollama:latest \
           --file ollama-deployment/Dockerfile \
-          ollama-deployment/
+          .
     - name: Save image for testing
       run: docker save ghcr.io/organicsoylent/ollama:latest -o ollama.tar
     - name: Upload image as artifact

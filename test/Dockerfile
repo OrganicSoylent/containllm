@@ -15,8 +15,6 @@ RUN apt update && apt install -y \
     ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 
-RUN ls -la
-
 # Install Ollama
 RUN curl -fsSL https://ollama.com/install.sh | sh
 
