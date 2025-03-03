@@ -27,4 +27,5 @@ COPY models/ $OLLAMA_MODELS/
 # Expose Ollama's default port (if needed)
 EXPOSE 11434
 
-CMD ["ollama", "serve"]
+ENTRYPOINT ["/bin/ollama"]
+CMD ["serve"]

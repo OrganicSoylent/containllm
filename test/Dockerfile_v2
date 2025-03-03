@@ -6,6 +6,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 
 # Define the model storage path
 ENV OLLAMA_MODELS=/models
+ENV MODEL_NAME="deepseek-r1:1.5b"
 
 # Install required dependencies
 RUN apt update && apt install -y \
@@ -15,19 +16,21 @@ RUN apt update && apt install -y \
     ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 
-RUN ls -la
-
 # Install Ollama
 RUN curl -fsSL https://ollama.com/install.sh | sh
 
 # Set WORKDIR for clarity
 WORKDIR $OLLAMA_MODELS
 
-# Copy the downloaded models into Ollama's model directory
-COPY models/ $OLLAMA_MODELS/
+COPY ./run-ollama.sh /tmp/run-ollama.sh
 
-RUN ls -la $OLLAMA_MODELS/
+WORKDIR /tmp
+
+RUN chmod +x run-ollama.sh \
+    && ./run-ollama.sh
+
 # Expose Ollama's default port (if needed)
 EXPOSE 11434
 
-CMD ["ollama", "serve"]
+ENTRYPOINT ["/bin/ollama"]
+CMD ["serve"]

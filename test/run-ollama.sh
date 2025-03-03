@@ -1,5 +1,4 @@
 #!/bin/bash
-export OLLAMA models
 
 echo "Starting Ollama server in the background..."
 ollama serve &
@@ -10,9 +9,7 @@ while ! ollama list >/dev/null 2>&1; do
 done
 
 echo "Ollama server is running. Pulling model..."
-ollama pull "$MODEL_NAME" # deepseek-r1:1.5b
-
-ollama cp ## WIP
+ollama pull "$MODEL_NAME"
 
 echo "Stopping Ollama server..."
 pkill -f "ollama serve"

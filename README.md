@@ -104,8 +104,6 @@ kubectl apply -f ./kubernetes-dashboard/.
 Check for deployment status
 ```
 kubectl get pods -n k8s-dash
-
-kubectl get svc -n k8s-dash
 ```
 The Login should be accessible on [127.0.0.1:9100](https://127.0.0.1:9100)
 
