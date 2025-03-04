@@ -76,7 +76,7 @@ The CrewAI deployment is conpletely scripted, so you can add required secrets an
 
 As of now, you need to provide this information:
 - SERPER_API_KEY (for Serper webscraping)
-- CAR_BRAND (for the marketing example)
+- CAR_BRAND (for the marketing-crew example)
 
 Simply run this and follow the prompted instructions
 ```
