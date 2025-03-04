@@ -1,6 +1,11 @@
 from typing import List
 from crewai import Agent, Crew, Process, Task
 from crewai.project import CrewBase, agent, crew, task
+from langchain.llms import Ollama
+from dotenv import load_dotenv
+load_dotenv()
+
+ollama_deepseek = Ollama(base_url="http://ollama-service-large.ollama.svc.cluster.local:11434",model="deepseek-r1:7b")
 
 # Uncomment the following line to use an example of a custom tool
 # from marketing_posts.tools.custom_tool import MyCustomTool
@@ -107,5 +112,6 @@ class MarketingPostsCrew():
 			tasks=self.tasks, # Automatically created by the @task decorator
 			process=Process.sequential,
 			verbose=True,
+			llm=ollama_deepseek
 			# process=Process.hierarchical, # In case you wanna use that instead https://docs.crewai.com/how-to/Hierarchical/
 		)

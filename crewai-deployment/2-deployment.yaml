@@ -15,7 +15,15 @@ spec:
     spec:
       containers:
         - name: crewai-container
-          image: ghcr.io/organicsoylent/crewai:latest # local registry: 192.168.49.2:5000/crewai:latest
+          image: ghcr.io/organicsoylent/crewai:latest
           imagePullPolicy: IfNotPresent
+          env:
+            name: OLLAMA_SVC ## change
+            value: "http://ollama-service-large.ollama.svc.cluster.local:11434"
+            name: SERPER_API_KEY
+            valueFrom:
+              secretKeyRef:
+                name: serper-api-key
+                key: SERPER_API_KEY
           ports:
             - containerPort: 80

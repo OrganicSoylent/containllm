@@ -34,7 +34,7 @@ spec:
         - name: OLLAMA_BASE_URLS ## for multi-pod ollama deployment
           value: "http://ollama-service-tiny.ollama.svc.cluster.local:11434;http://ollama-service-large.ollama.svc.cluster.local:11434"
         - name: DEFAULT_MODELS
-          value: "deepseek-r1:1.5b"
+          value: "deepseek-r1:7b"
         - name: DEFAULT_LANG
           value: "en"
         ports:

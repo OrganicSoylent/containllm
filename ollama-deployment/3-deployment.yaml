@@ -29,6 +29,10 @@ spec:
           env:
             - name: OLLAMA_KEEP_ALIVE
               value: "1h"
+            - name: MODEL_NAME
+              value: "deepseek-r1:1.5b"
+            - name: CUDA_VISIBLE_DEVICES
+              value: "" ## disables GPU usage. set to "0" for enabling
 ### Overriding default CMD (ollama serve) is necessary for env variables take effect
           command: ["/bin/sh", "-c"] 
           args:
@@ -39,7 +43,7 @@ spec:
                 command:
                   - "/bin/sh"
                   - "-c"
-                  - "ollama pull deepseek-r1:1.5b"
+                  - "ollama pull $MODEL_NAME"
       volumes:
         - name: ollama-storage
           emptyDir: {}
@@ -76,6 +80,8 @@ spec:
           env:
             - name: OLLAMA_KEEP_ALIVE
               value: "1h" 
+            - name: MODEL_NAME
+              value: "deepseek-r1:7b"
 ### Overriding default CMD (ollama serve) is necessary for ollama env variables take effect
           command: ["/bin/sh", "-c"]
           args:
@@ -86,7 +92,7 @@ spec:
                 command:
                   - "/bin/sh"
                   - "-c"
-                  - "ollama pull deepseek-r1:7b"
+                  - "ollama pull $MODEL_NAME"
       volumes:
         - name: ollama-storage
           emptyDir: {}
