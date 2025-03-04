@@ -239,7 +239,7 @@ jobs:
   cleanup-artifacts:
     if: always() 
     needs:
-      - push-ollama
+      # - push-ollama
       - push-crewai
     runs-on: ubuntu-latest
     permissions:
