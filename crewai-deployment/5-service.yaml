@@ -22,5 +22,5 @@ spec:
     app: crewai
   ports:
     - protocol: TCP
-      port: 9000
-      targetPort: 9001
+      port: 9200
+      targetPort: 8080

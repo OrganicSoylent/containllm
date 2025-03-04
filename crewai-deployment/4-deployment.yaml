@@ -16,11 +16,11 @@ spec:
       containers:
         - name: crewai-container
           image: ghcr.io/organicsoylent/crewai:latest
-          imagePullPolicy: IfNotPresent
+          imagePullPolicy: Always # IfNotPresent
           envFrom:
           - configMapRef:
               name: crewai-cm
           - secretRef:
               name: crewai-secrets
           ports:
-            - containerPort: 80
+            - containerPort: 8080
