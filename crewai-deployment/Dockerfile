@@ -1,4 +1,3 @@
-# Use an official Python runtime as a parent image
 FROM python:3.12
 
 # Set the working directory in the container
@@ -19,5 +18,5 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Expose port if required (modify as needed)
 EXPOSE 8080
 
-# Run the app -- No run on startup needed
-# CMD ["python", "main.py"]
+# Run the container indefinitely
+CMD ["tail", "-f", "/dev/null"]

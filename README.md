@@ -72,14 +72,17 @@ kubectl get pods -n ollama
 The ollama container comes with a preinstalled deepseek-r1 model (1.5b parameters).
 
 ### 2. CrewAI
-Apply the deployment
+The CrewAI deployment is conpletely scripted, so you can add required secrets and configurations in runtime. This is done to prevent any API-Key or other sensitive information to end up in the GitHub repo.
+
+As of now, you need to provide this information:
+- SERPER_API_KEY (for Serper webscraping)
+- CAR_BRAND (for the marketing example)
+
+Simply run this and follow the prompted instructions
 ```
-kubectl apply -f ./crewai-deployment/.
+sh crewai-deployment/deploy_crewai.sh
 ```
-Check deployment progress
-```
-kubectl get pods -n crewai
-```
+
 
 ### 3. OpenwebUI
 Deploy Kubernetes resources
