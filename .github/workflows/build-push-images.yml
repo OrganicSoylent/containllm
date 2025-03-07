@@ -175,7 +175,68 @@ jobs:
   #         docker push ghcr.io/organicsoylent/ollama:latest
 
 #### CrewAI Section ####
-  build-image-crewai:
+  # build-image-crewai:
+  #   needs: [preparation]
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #   - name: Checkout repo
+  #     uses: actions/checkout@v4
+  #     with:
+  #       fetch-depth: 0
+  #   - name: Log in to ghcr
+  #     uses: docker/login-action@v3
+  #     with:
+  #       registry: ghcr.io
+  #       username: ${{ github.actor }}
+  #       password: ${{ secrets.GITHUB_TOKEN }}
+  #   - name: Build & Push CrewAI image
+  #     run: |
+  #       docker build -t ghcr.io/organicsoylent/crewai:latest crewai-deployment/
+  #       docker image ls
+  #   - name: Save image for testing
+  #     run: docker save ghcr.io/organicsoylent/crewai:latest -o crewai.tar
+  #   - name: Upload image as artifact
+  #     uses: actions/upload-artifact@v4
+  #     with:
+  #       name: crewai
+  #       path: crewai.tar
+  #       retention-days: 1
+
+  # test-crewai:
+  #   needs: [preparation, build-image-crewai]
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Download crewai image
+  #       uses: actions/download-artifact@v4
+  #       with:
+  #         name: crewai
+  #     - name: Load Docker images
+  #       run: |
+  #         docker load -i crewai.tar
+  #     - name: Run crewai and test
+  #       run: |
+  #         docker run --rm ghcr.io/organicsoylent/crewai:latest python -c "import sys; print('Python is working:', sys.version)"
+
+  # push-crewai:
+  #   needs: [preparation, test-crewai]
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Log in to GitHub Container Registry
+  #       uses: docker/login-action@v3
+  #       with:
+  #         registry: ghcr.io
+  #         username: ${{ github.actor }}
+  #         password: ${{ secrets.GITHUB_TOKEN }}
+  #     - name: Download CrewAI image
+  #       uses: actions/download-artifact@v4
+  #       with:
+  #         name: crewai
+  #     - name: Load and Push CrewAI image
+  #       run: |
+  #         docker load -i crewai.tar
+  #         docker push ghcr.io/organicsoylent/crewai:latest
+
+  build-push-crewai-ui:
     needs: [preparation]
     runs-on: ubuntu-latest
     steps:
@@ -191,68 +252,69 @@ jobs:
         password: ${{ secrets.GITHUB_TOKEN }}
     - name: Build & Push CrewAI image
       run: |
-        docker build -t ghcr.io/organicsoylent/crewai:latest crewai-deployment/
+        docker build -t ghcr.io/organicsoylent/crewai-ui:latest crewai_ui_deployment/CrewAI-Studio/
         docker image ls
-    - name: Save image for testing
-      run: docker save ghcr.io/organicsoylent/crewai:latest -o crewai.tar
-    - name: Upload image as artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: crewai
-        path: crewai.tar
-        retention-days: 1
+        docker push ghcr.io/organicsoylent/crewai-ui:latest
+  #   - name: Save image for testing
+  #     run: docker save ghcr.io/organicsoylent/crewai-ui:latest -o crewai_ui.tar
+  #   - name: Upload image as artifact
+  #     uses: actions/upload-artifact@v4
+  #     with:
+  #       name: crewai_ui
+  #       path: crewai_ui.tar
+  #       retention-days: 1
 
-  test-crewai:
-    needs: [preparation, build-image-crewai]
-    runs-on: ubuntu-latest
-    steps:
-      - name: Download crewai image
-        uses: actions/download-artifact@v4
-        with:
-          name: crewai
-      - name: Load Docker images
-        run: |
-          docker load -i crewai.tar
-      - name: Run crewai and test
-        run: |
-          docker run --rm ghcr.io/organicsoylent/crewai:latest python -c "import sys; print('Python is working:', sys.version)"
+  # test-crewai:
+  #   needs: [preparation, build-image-crewai]
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Download crewai image
+  #       uses: actions/download-artifact@v4
+  #       with:
+  #         name: crewai
+  #     - name: Load Docker images
+  #       run: |
+  #         docker load -i crewai.tar
+  #     - name: Run crewai and test
+  #       run: |
+  #         docker run --rm ghcr.io/organicsoylent/crewai:latest python -c "import sys; print('Python is working:', sys.version)"
 
-  push-crewai:
-    needs: [preparation, test-crewai]
-    runs-on: ubuntu-latest
-    steps:
-      - name: Log in to GitHub Container Registry
-        uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-      - name: Download CrewAI image
-        uses: actions/download-artifact@v4
-        with:
-          name: crewai
-      - name: Load and Push CrewAI image
-        run: |
-          docker load -i crewai.tar
-          docker push ghcr.io/organicsoylent/crewai:latest
+  # push-crewai:
+  #   needs: [preparation, build-image-crewai]
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Log in to GitHub Container Registry
+  #       uses: docker/login-action@v3
+  #       with:
+  #         registry: ghcr.io
+  #         username: ${{ github.actor }}
+  #         password: ${{ secrets.GITHUB_TOKEN }}
+  #     - name: Download CrewAI image
+  #       uses: actions/download-artifact@v4
+  #       with:
+  #         name: crewai_ui
+  #     - name: Load and Push CrewAI image
+  #       run: |
+  #         docker load -i crewai_ui.tar
+  #         docker push ghcr.io/organicsoylent/crewai-ui:latest
 
-  cleanup-artifacts:
-    if: always() 
-    needs:
-      # - push-ollama
-      - push-crewai
-    runs-on: ubuntu-latest
-    permissions:
-      actions: write
-    steps:
-      - name: Delete all artifacts
-        run: |
-          echo "Fetching artifact list..."
-          ARTIFACTS=$(gh api repos/${{ github.repository }}/actions/artifacts --jq '.artifacts[].id')
+  # cleanup-artifacts:
+  #   if: always() 
+  #   needs:
+  #     # - push-ollama
+  #     - push-crewai
+  #   runs-on: ubuntu-latest
+  #   permissions:
+  #     actions: write
+  #   steps:
+  #     - name: Delete all artifacts
+  #       run: |
+  #         echo "Fetching artifact list..."
+  #         ARTIFACTS=$(gh api repos/${{ github.repository }}/actions/artifacts --jq '.artifacts[].id')
 
-          for ARTIFACT_ID in $ARTIFACTS; do
-            echo "Deleting artifact $ARTIFACT_ID..."
-            gh api --method DELETE repos/${{ github.repository }}/actions/artifacts/$ARTIFACT_ID
-          done
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  #         for ARTIFACT_ID in $ARTIFACTS; do
+  #           echo "Deleting artifact $ARTIFACT_ID..."
+  #           gh api --method DELETE repos/${{ github.repository }}/actions/artifacts/$ARTIFACT_ID
+  #         done
+  #       env:
+  #         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

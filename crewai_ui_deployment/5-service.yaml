@@ -1,0 +1,26 @@
+# apiVersion: v1
+# kind: Service
+# metadata:
+#   name: talkto-ollama-service
+#   namespace: crewai
+# spec:
+#   selector:
+#     app: ollama
+#   ports:
+#     - protocol: TCP
+#       port: 11434
+#       targetPort: 11434
+# ---
+apiVersion: v1
+kind: Service
+metadata:
+  name: crewai-ui-external
+  namespace: crewai-ui
+spec:
+  type: LoadBalancer
+  selector:
+    app: crewai-ui
+  ports:
+    - protocol: TCP
+      port: 9200
+      targetPort: 8501

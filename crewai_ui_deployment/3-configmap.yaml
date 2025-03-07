@@ -1,10 +1,9 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: crewai-cm
-  namespace: crewai
+  name: crewai-ui-cm
+  namespace: crewai-ui
 data:
   CAR_BRAND: "${CAR_BRAND}"
   POETRY_VIRTUALENVS_IN_PROJECT: "true"
   POETRY_VIRTUALENVS_CREATE: "false"
-  

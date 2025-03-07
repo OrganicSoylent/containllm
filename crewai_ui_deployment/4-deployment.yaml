@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: crewai-ui-deployment
+  namespace: crewai-ui
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: crewai-ui
+  template:
+    metadata:
+      labels:
+        app: crewai-ui
+    spec:
+      containers:
+        - name: crewai-ui-container
+          image: ghcr.io/organicsoylent/crewai-ui:latest
+          imagePullPolicy: Always # IfNotPresent
+          envFrom:
+          - configMapRef:
+              name: crewai-ui-cm
+          - secretRef:
+              name: crewai-ui-secrets
+          ports:
+            - containerPort: 8080

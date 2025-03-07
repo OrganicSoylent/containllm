@@ -2,8 +2,6 @@ from typing import List
 from crewai import Agent, Crew, Process, Task
 from crewai.project import CrewBase, agent, crew, task
 from langchain.llms import Ollama
-from dotenv import load_dotenv
-load_dotenv()
 
 ollama_deepseek = Ollama(base_url="http://ollama-service-large.ollama.svc.cluster.local:11434",model="deepseek-r1:7b")
 

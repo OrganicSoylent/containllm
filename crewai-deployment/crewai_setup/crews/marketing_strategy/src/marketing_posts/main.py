@@ -2,13 +2,11 @@
 import sys
 import os
 from marketing_posts.crew import MarketingPostsCrew
-from dotenv import load_dotenv
 
-load_dotenv()  # Load environment variables from .env file
 
 def run():
     # Replace with your inputs, it will automatically interpolate any tasks and agents information
-    car_brand = os.getenv("CAR_BRAND", "DefaultBrand")
+    car_brand = os.getenv("CAR_BRAND")
     inputs = {
         'customer_domain': 'cars',
         'project_description': """
