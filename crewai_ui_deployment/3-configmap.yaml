@@ -4,6 +4,19 @@ metadata:
   name: crewai-ui-cm
   namespace: crewai-ui
 data:
-  CAR_BRAND: "${CAR_BRAND}"
-  POETRY_VIRTUALENVS_IN_PROJECT: "true"
-  POETRY_VIRTUALENVS_CREATE: "false"
+  CAR_BRAND: "${CAR_BRAND:-}"
+  # POETRY_VIRTUALENVS_IN_PROJECT: "true"
+  # POETRY_VIRTUALENVS_CREATE: "false"
+  # OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+  # OPENAI_API_BASE: ${OPENAI_API_BASE:-}
+  # OPENAI_PROXY_MODELS: ${OPENAI_PROXY_MODELS:-}
+  # GROQ_API_KEY: ${GROQ_API_KEY:-}
+  # LMSTUDIO_API_BASE: ${LMSTUDIO_API_BASE:-}
+  # ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+  # AGENTOPS_API_KEY: ${AGENTOPS_API_KEY:-}
+  # AGENTOPS_ENABLED: ${AGENTOPS_ENABLED:-False}
+  OLLAMA_HOST: "http://ollama-service-large.ollama.svc.cluster.local:11434" # ${OLLAMA_HOST:-}
+  OLLAMA_MODELS: "deepseek-r1:7b" # ${OLLAMA_MODELS:-}
+  SERPER_API_KEY: ${SERPER_API_KEY:-}
+  # DB_URL: postgresql://${POSTGRES_USER:-crewaiuser}:${POSTGRES_PASSWORD:-secret123}@db:5432/${POSTGRES_DB:-crewai}
+

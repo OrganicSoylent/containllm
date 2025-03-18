@@ -1,49 +1,49 @@
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: deepseek-tiny
-  namespace: ollama
-  labels:
-    app: ollama
-    model: tiny
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: ollama
-      model: tiny
-  template:
-    metadata:
-      labels:
-        app: ollama
-        model: tiny
-    spec:
-      containers:
-        - name: ollama
-          image: ollama/ollama:latest
-          ports:
-            - containerPort: 11434
-          volumeMounts:
-            - mountPath: /root/.ollama
-              name: ollama-storage
-          env:
-            - name: OLLAMA_KEEP_ALIVE
-              value: "1h"
-            - name: MODEL_NAME
-              value: "deepseek-r1:1.5b"
-            - name: CUDA_VISIBLE_DEVICES
-              value: "" ## disables GPU usage. set to "0" for enabling
-### Overriding default CMD (ollama serve) is necessary for env variables take effect
-          command: ["/bin/sh", "-c"] 
-          args:
-            - "ollama serve"
-          lifecycle:
-            postStart:
-              exec:
-                command:
-                  - "/bin/sh"
-                  - "-c"
-                  - "ollama pull $MODEL_NAME"
-      volumes:
-        - name: ollama-storage
-          emptyDir: {}
+# apiVersion: apps/v1
+# kind: Deployment
+# metadata:
+#   name: deepseek-tiny
+#   namespace: ollama
+#   labels:
+#     app: ollama
+#     model: tiny
+# spec:
+#   replicas: 1
+#   selector:
+#     matchLabels:
+#       app: ollama
+#       model: tiny
+#   template:
+#     metadata:
+#       labels:
+#         app: ollama
+#         model: tiny
+#     spec:
+#       containers:
+#         - name: ollama
+#           image: ollama/ollama:latest
+#           ports:
+#             - containerPort: 11434
+#           volumeMounts:
+#             - mountPath: /root/.ollama
+#               name: ollama-storage
+#           env:
+#             - name: OLLAMA_KEEP_ALIVE
+#               value: "1h"
+#             - name: MODEL_NAME
+#               value: "deepseek-r1:1.5b"
+#             - name: CUDA_VISIBLE_DEVICES
+#               value: "" ## disables GPU usage. set to "0" for enabling
+# ### Overriding default CMD (ollama serve) is necessary for env variables take effect
+#           command: ["/bin/sh", "-c"] 
+#           args:
+#             - "ollama serve"
+#           lifecycle:
+#             postStart:
+#               exec:
+#                 command:
+#                   - "/bin/sh"
+#                   - "-c"
+#                   - "ollama pull $MODEL_NAME"
+#       volumes:
+#         - name: ollama-storage
+#           emptyDir: {}

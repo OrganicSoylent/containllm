@@ -1,51 +1,51 @@
-name: Build and Push custom Images
+# name: Build and Push custom Images
 
-on:
-  push:
-    branches: 
-      - main
-  pull_request:
-    branches: 
-      - main
+# on:
+#   push:
+#     branches: 
+#       - main
+#   pull_request:
+#     branches: 
+#       - main
 
 # on:
 #   release:
 #     types:
 #       - created
 
-permissions:
-  contents: read
-  packages: write
+# permissions:
+#   contents: read
+#   packages: write
   
-env:
-  MODEL_NAME: "deepseek-r1:1.5b"
+# env:
+#   MODEL_NAME: "deepseek-r1:1.5b"
 
-jobs:
-  preparation:
-    runs-on: ubuntu-latest
-    steps:
-    - name: Log in to GHCR
-      uses: docker/login-action@v3
-      with:
-        registry: ghcr.io/organicsoylent/
-        username: ${{ github.actor }}
-        password: ${{ secrets.GITHUB_TOKEN }}
-    - name: Cleaning up & freeing disk space
-      run: |
-        echo "Checking initial disk space:"
-        df -h
+# jobs:
+#   preparation:
+#     runs-on: ubuntu-latest
+#     steps:
+#     - name: Log in to GHCR
+#       uses: docker/login-action@v3
+#       with:
+#         registry: ghcr.io/organicsoylent/
+#         username: ${{ github.actor }}
+#         password: ${{ secrets.GITHUB_TOKEN }}
+#     - name: Cleaning up & freeing disk space
+#       run: |
+#         echo "Checking initial disk space:"
+#         df -h
 
-        echo "Removing APT package caches..."
-        sudo apt-get clean
-        sudo rm -rf /var/lib/apt/lists/*
+#         echo "Removing APT package caches..."
+#         sudo apt-get clean
+#         sudo rm -rf /var/lib/apt/lists/*
 
-        docker image ls
+#         docker image ls
 
-        echo "Cleaning up unused Docker layers..."
-        docker system prune -a -f --volumes
+#         echo "Cleaning up unused Docker layers..."
+#         docker system prune -a -f --volumes
 
-        echo "Checking available disk space after cleanup:"
-        df -h
+#         echo "Checking available disk space after cleanup:"
+#         df -h
 
 #### Ollama Section ####
   # download-model:
@@ -236,25 +236,25 @@ jobs:
   #         docker load -i crewai.tar
   #         docker push ghcr.io/organicsoylent/crewai:latest
 
-  build-push-crewai-ui:
-    needs: [preparation]
-    runs-on: ubuntu-latest
-    steps:
-    - name: Checkout repo
-      uses: actions/checkout@v4
-      with:
-        fetch-depth: 0
-    - name: Log in to ghcr
-      uses: docker/login-action@v3
-      with:
-        registry: ghcr.io
-        username: ${{ github.actor }}
-        password: ${{ secrets.GITHUB_TOKEN }}
-    - name: Build & Push CrewAI image
-      run: |
-        docker build -t ghcr.io/organicsoylent/crewai-ui:latest crewai_ui_deployment/CrewAI-Studio/
-        docker image ls
-        docker push ghcr.io/organicsoylent/crewai-ui:latest
+  # build-push-crewai-ui:
+  #   needs: [preparation]
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #   - name: Checkout repo
+  #     uses: actions/checkout@v4
+  #     with:
+  #       fetch-depth: 0
+  #   - name: Log in to ghcr
+  #     uses: docker/login-action@v3
+  #     with:
+  #       registry: ghcr.io
+  #       username: ${{ github.actor }}
+  #       password: ${{ secrets.GITHUB_TOKEN }}
+  #   - name: Build & Push CrewAI image
+  #     run: |
+  #       docker build -t ghcr.io/organicsoylent/crewai-ui:latest crewai_ui_deployment/CrewAI-Studio/
+  #       docker image ls
+  #       docker push ghcr.io/organicsoylent/crewai-ui:latest
   #   - name: Save image for testing
   #     run: docker save ghcr.io/organicsoylent/crewai-ui:latest -o crewai_ui.tar
   #   - name: Upload image as artifact

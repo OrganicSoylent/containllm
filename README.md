@@ -1,4 +1,12 @@
 # Run CrewAI & Deepseek-R1 in a local Minikube Cluster
+Deploy locally in a Kubernetes managed environement
+- Ollama server running deepseek-r1:1.5b & deepseek-r1:7b containers
+- OpenWebUI
+- CrewAI with a prebuilt UI
+
+Optionally, you can leverage the advantages of Kubernetes through
+- Kubernetes Dashboard lets you easily manage the Cluster
+- ArgoCD for automated deployment of your changes (wip)
 
 ## Table of contents
 __I. Cluster Quickstart__
@@ -43,14 +51,19 @@ sudo systemctl restart docker
 If this doesn't work, go to the [troubleshooting section](#troubleshooting-nvidia-container-runtime).
 
 ### 2. Start the Cluster
+__Optionally:__ raise the available CPU & RAM limit for the cluster. Specially important for non-GPU-accelerated containers. Adapt to your pc specs:
+```
+# 12 GiB of RAM (12 x 1014 MB)
+minikube config set memory 12288
+
+# 8 physical cpu cores = 16 digital cores
+minikube config set cpus 16
+```
 Starts Minikube cluster with GPU usage.
 ```
 minikube start --driver docker --container-runtime docker --gpus all
 ```
-The same __without__ GPU usage.
-```
-minikube start --driver docker --container-runtime docker
-```
+
 ### 3. Enable outside access to cluster
 To enable access to apps on the cluster, run this in a second terminal __and keep it running__:
 ```
@@ -71,17 +84,9 @@ kubectl get pods -n ollama
 ```
 The ollama container comes with a preinstalled deepseek-r1 model (1.5b parameters).
 
-### 2. CrewAI
-The CrewAI deployment is conpletely scripted, so you can add required secrets and configurations in runtime. This is done to prevent any API-Key or other sensitive information to end up in the GitHub repo.
+### 2. n8n AI-agent framework
 
-As of now, you need to provide this information:
-- SERPER_API_KEY (for Serper webscraping)
-- CAR_BRAND (for the marketing-crew example)
 
-Simply run this and follow the prompted instructions
-```
-sh crewai-deployment/deploy_crewai.sh
-```
 
 
 ### 3. OpenwebUI
@@ -339,3 +344,27 @@ kubectl patch svc kubernetes-dashboard-kong-proxy -p '{"spec": {"type": "LoadBal
 - [Blogpost for running Deepseek in Kubernetes](https://www.linkedin.com/pulse/deepseek-kubernetes-ai-powered-reasoning-scale-brains-upgrade-i56pc)
 
 - [Guide for installing Minikube](https://www.virtualizationhowto.com/2021/11/install-minikube-in-wsl-2-with-kubectl-and-helm/)
+
+# Waste bin
+### 2. CrewAI including UI
+The CrewAI deployment is conpletely scripted, so you can add required secrets and configurations in runtime. This is done to prevent any API-Key or other sensitive information to end up in the GitHub repo.
+
+As of now, you need to provide this information:
+- SERPER_API_KEY (for Serper webscraping)
+- CAR_BRAND (for the marketing-crew example)
+
+```
+kubectl apply -f ./crewai_ui_deployment/.
+```
+
+### 2. CrewAI
+The CrewAI deployment is conpletely scripted, so you can add required secrets and configurations in runtime. This is done to prevent any API-Key or other sensitive information to end up in the GitHub repo.
+
+As of now, you need to provide this information:
+- SERPER_API_KEY (for Serper webscraping)
+- CAR_BRAND (for the marketing-crew example)
+
+Simply run this and follow the prompted instructions
+```
+sh crewai-deployment/deploy_crewai.sh
+```
