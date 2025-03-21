@@ -2,7 +2,7 @@
 Deploy locally in a Kubernetes managed environement
 - Ollama server running deepseek-r1:1.5b & deepseek-r1:7b containers
 - OpenWebUI
-- CrewAI with a prebuilt UI
+- n8n AI agent framework
 
 Optionally, you can leverage the advantages of Kubernetes through
 - Kubernetes Dashboard lets you easily manage the Cluster
@@ -40,15 +40,19 @@ __[VI. Development](#vi-development)__
 For initial setup, check the [prerequesits](#iv-prerequesits) first.
 
 ### 1. Enable Nvidia runtime in Docker
-Check if nvidia-container-runtime is already listed as docker runtime
+Check if nvidia-container-runtime is already listed as docker runtime (requires the Nvidia-container-runtime to be installed and [added to the Docker daemon config](#1-troubleshooting-nvidia-container-runtime))
 ```
 docker info | grep -i runtime
 ```
-If nvidia-runtime is not listed, restart docker and check again
+If the Nvidia runtime is already enabled, you should see:
+```
+Runtimes: io.containerd.runc.v2 nvidia runc
+```
+If the Nvidia runtime is not enabled, simply restart the docker daemon:
 ```
 sudo systemctl restart docker
 ```
-If this doesn't work, go to the [troubleshooting section](#troubleshooting-nvidia-container-runtime).
+
 
 ### 2. Start the Cluster
 __Optionally:__ raise the available CPU & RAM limit for the cluster. Specially important for non-GPU-accelerated containers. Adapt to your pc specs:
@@ -72,8 +76,23 @@ minikube tunnel
 _Note: When deploying a LoadBalancer to the cluster, you will have to provide your sudo password in this terminal once, to unblock the tunnel._
 
 ## II. Applications Quickstart
-### 1. Ollama
+### 0. Deploy all via script
+Run the _deploy_all.sh_ script. You can decline the installation of each component. However, the Ollama-deployment is essential
+```
+sh deploy_all.sh
+```
+IP addresses for deployments with UI:
+- Kubernetes Dashboard UI: https://localhost:9100
+- n8n: http://localhost:9200
+- Openweb UI: http://localhost:9300
 
+<br>
+<details> 
+  <summary>In case you haven't noticed</summary>
+  <img src="./img/over_9000.jpg" alt="over 9000" width="200"></img>
+</details>
+
+### 1. Ollama
 Deploys the kubernetes resources
 ```
 kubectl apply -f ./ollama-deployment/.
@@ -98,7 +117,7 @@ Check deployment progress
 ```
 kubectl get pods -n openwebui
 ```
-The UI should be accessible under [127.0.0.1:9000](http://127.0.0.1:9000)
+The UI should be accessible under [127.0.0.1:9300](http://127.0.0.1:9300)
 
 ## III. Optional Tools
 
@@ -345,26 +364,4 @@ kubectl patch svc kubernetes-dashboard-kong-proxy -p '{"spec": {"type": "LoadBal
 
 - [Guide for installing Minikube](https://www.virtualizationhowto.com/2021/11/install-minikube-in-wsl-2-with-kubectl-and-helm/)
 
-# Waste bin
-### 2. CrewAI including UI
-The CrewAI deployment is conpletely scripted, so you can add required secrets and configurations in runtime. This is done to prevent any API-Key or other sensitive information to end up in the GitHub repo.
 
-As of now, you need to provide this information:
-- SERPER_API_KEY (for Serper webscraping)
-- CAR_BRAND (for the marketing-crew example)
-
-```
-kubectl apply -f ./crewai_ui_deployment/.
-```
-
-### 2. CrewAI
-The CrewAI deployment is conpletely scripted, so you can add required secrets and configurations in runtime. This is done to prevent any API-Key or other sensitive information to end up in the GitHub repo.
-
-As of now, you need to provide this information:
-- SERPER_API_KEY (for Serper webscraping)
-- CAR_BRAND (for the marketing-crew example)
-
-Simply run this and follow the prompted instructions
-```
-sh crewai-deployment/deploy_crewai.sh
-```

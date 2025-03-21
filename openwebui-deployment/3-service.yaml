@@ -8,6 +8,6 @@ spec:
     app: openweb-ui
   ports:
     - protocol: TCP
-      port: 9000
+      port: 9300
       targetPort: 8080
   type: LoadBalancer
