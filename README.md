@@ -53,10 +53,10 @@ If this doesn't work, go to the [troubleshooting section](#troubleshooting-nvidi
 ### 2. Start the Cluster
 __Optionally:__ raise the available CPU & RAM limit for the cluster. Specially important for non-GPU-accelerated containers. Adapt to your pc specs:
 ```
-# 12 GiB of RAM (12 x 1014 MB)
+# Example: 12 of 32 GB of total RAM (12 x 1024 MB)
 minikube config set memory 12288
 
-# 8 physical cpu cores = 16 digital cores
+# Example: 8 physical cpu cores = 16 digital cores
 minikube config set cpus 16
 ```
 Starts Minikube cluster with GPU usage.
@@ -85,9 +85,9 @@ kubectl get pods -n ollama
 The ollama container comes with a preinstalled deepseek-r1 model (1.5b parameters).
 
 ### 2. n8n AI-agent framework
-
-
-
+```
+kubectl apply -f ./n8n-deployment/.
+```
 
 ### 3. OpenwebUI
 Deploy Kubernetes resources

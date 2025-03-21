@@ -1,7 +1,7 @@
 # apiVersion: apps/v1
 # kind: Deployment
 # metadata:
-#   name: deepseek-tiny
+#   name: ollama-tiny
 #   namespace: ollama
 #   labels:
 #     app: ollama
