@@ -8,19 +8,34 @@ spec:
   selector:
     matchLabels:
       app: n8n
+  strategy:
+    type: Recreate
   template:
     metadata:
       labels:
         app: n8n
     spec:
+## deployment waits for pvc & /mnt/e/Projects/n8n-storage directory setup to be finished
+      initContainers:
+      - name: check-pvc
+        image: busybox
+        command: ["sh", "-c", "echo 'Checking if PVC is available' && ls /mnt/n8n-storage"]
+        volumeMounts:
+        - mountPath: "/mnt/n8n-storage"
+          name: n8n-storage
       containers:
-        - name: n8n-container
-          image: docker.n8n.io/n8nio/n8n
-          imagePullPolicy: IfNotPresent
-          envFrom:
-          - configMapRef:
-              name: n8n-cm
-          - secretRef:
-              name: n8n-secrets
-          ports:
-            - containerPort: 5678
+      - name: n8n
+        image: docker.n8n.io/n8nio/n8n
+        imagePullPolicy: IfNotPresent
+        envFrom:
+        - configMapRef:
+            name: n8n-cm
+        ports:
+          - containerPort: 5678
+        volumeMounts:
+          - mountPath: "/mnt/n8n-storage" # "/data"
+            name: n8n-storage
+      volumes:
+        - name: n8n-storage
+          persistentVolumeClaim:
+            claimName: n8n-storage-pvc

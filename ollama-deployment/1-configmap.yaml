@@ -1,0 +1,23 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ollama-large-cm
+  namespace: ollama
+data:
+  OLLAMA_KEEP_ALIVE: "1h"
+  MODEL_A: "qwen2.5:3b" # "gemma3:12b" # "deepseek-r1:7b" 
+  MODEL_B: "qwen2.5:14b"
+  MODEL_C: "llama3.1:8b"
+  CUDA_VISIBLE_DEVICES: "0" ## enable/disable GPU usage. set to "0" for enabling, "" for disabling
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ollama-tiny-cm
+  namespace: ollama
+data:
+  OLLAMA_KEEP_ALIVE: "1h"
+  MODEL_A: "deepseek-r1:1.5b"
+  MODEL_B: "gemma3:1b"
+  MODEL_C: "qwen2.5:3b"
+  CUDA_VISIBLE_DEVICES: "" ## enable/disable GPU usage. set to "0" for enabling, "" for disabling

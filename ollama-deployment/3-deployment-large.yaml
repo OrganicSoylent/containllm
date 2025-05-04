@@ -26,23 +26,24 @@ spec:
           volumeMounts:
             - mountPath: /root/.ollama
               name: ollama-storage
-          env:
-            - name: OLLAMA_KEEP_ALIVE
-              value: "1h" 
-            - name: MODEL_NAME
-              # value: "deepseek-r1:7b"
-              value: "llama3.1:8b"
+          envFrom:
+          - configMapRef:
+              name: ollama-large-cm
 ### Overriding default CMD (ollama serve) is necessary for ollama env variables take effect
           command: ["/bin/sh", "-c"]
           args:
             - "ollama serve"
-          lifecycle:
-            postStart:
-              exec:
-                command:
-                  - "/bin/sh"
-                  - "-c"
-                  - "ollama pull $MODEL_NAME"
+### PostStart installation of LLM models (see configmap)
+          # lifecycle:
+          #   postStart:
+          #     exec:
+          #       command:
+          #         - "/bin/sh"
+          #         - "-c"
+          #         - |
+          #           ollama pull $MODEL_A && \
+          #           ollama pull $MODEL_B && \
+          #           ollama pull $MODEL_C
       volumes:
         - name: ollama-storage
           emptyDir: {}

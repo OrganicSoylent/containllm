@@ -1,0 +1,25 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: n8n-storage
+  namespace: n8n
+spec:
+  capacity:
+    storage: 5Gi
+  accessModes:
+    - ReadWriteMany
+  hostPath:
+    path: /mnt/n8n-storage
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: n8n-storage-pvc
+  namespace: n8n
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 5Gi
+

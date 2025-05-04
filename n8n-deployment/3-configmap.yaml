@@ -4,5 +4,10 @@ metadata:
   name: n8n-cm
   namespace: n8n
 data:
-  OLLAMA_HOST: "http://ollama-service-large.ollama.svc.cluster.local:11434" # ${OLLAMA_HOST:-}
-  OLLAMA_MODELS: "deepseek-r1:7b"
+  N8N_RUNNERS_ENABLED: "true"
+  N8N_DIAGNOSTICS_ENABLED: "false"
+  N8N_VERSION_NOTIFICATIONS_ENABLED: "false"
+  N8N_TEMPLATES_ENABLED: "false"
+  # N8N_USER_FOLDER: "/home/n8n-storage"
+  # N8N_CONFIG_FILES: "/home/n8n-storage/config"
+  OLLAMA_BASE_URLS: "http://ollama-service-tiny.ollama.svc.cluster.local:11434;http://ollama-service-large.ollama.svc.cluster.local:11434"

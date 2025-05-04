@@ -3,318 +3,318 @@ name: Build and Push custom Images
 on:
   push:
     branches: 
-      - feature/*
+      - feature/***
   pull_request:
     branches: 
-      - feature/*
+      - feature/***
 
-# on:
-#   release:
-#     types:
-#       - created
+on:
+  release:
+    types:
+      - created
 
-# permissions:
-#   contents: read
-#   packages: write
+permissions:
+  contents: read
+  packages: write
   
-# env:
-#   MODEL_NAME: "deepseek-r1:1.5b"
+env:
+  MODEL_NAME: "deepseek-r1:1.5b"
 
-# jobs:
-#   preparation:
+jobs:
+  preparation:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Log in to GHCR
+      uses: docker/login-action@v3
+      with:
+        registry: ghcr.io/organicsoylent/
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+    - name: Cleaning up & freeing disk space
+      run: |
+        echo "Checking initial disk space:"
+        df -h
+
+        echo "Removing APT package caches..."
+        sudo apt-get clean
+        sudo rm -rf /var/lib/apt/lists/*
+
+        docker image ls
+
+        echo "Cleaning up unused Docker layers..."
+        docker system prune -a -f --volumes
+
+        echo "Checking available disk space after cleanup:"
+        df -h
+
+### Ollama Section ####
+#   download-model:
+#     needs: [preparation]
+#     runs-on: ubuntu-latest
+#     env:
+#       OLLAMA_MODELS: /home/runner/work/containllm/containllm/models/
+#     steps:
+#       - name: Checkout repo
+#         uses: actions/checkout@v4
+#         with:
+#           fetch-depth: 0
+#       - name: Install Ollama and start Ollama
+#         run: |
+#           ls -la 
+#           chmod -R 777 $OLLAMA_MODELS
+
+#           curl -fsSL https://ollama.com/install.sh | sh
+
+#           export OLLAMA_MODELS=$OLLAMA_MODELS
+#           echo "OLLAMA_MODELS is set to: $OLLAMA_MODELS"
+
+#           echo "Starting Ollama server in the background..."
+#           ollama serve &
+
+#           echo "Waiting for Ollama server to be active..."
+#           while ! ollama list >/dev/null 2>&1; do
+#             sleep 1
+#           done
+
+#           echo "Ollama server is running. Pulling model..."
+#           ollama pull $MODEL_NAME
+
+#           ollama list
+
+#           ls -la $OLLAMA_MODELS
+#       - name: Compress model before upload
+#         run: tar -czvf ollama-model.tar.gz -C $OLLAMA_MODELS .
+#       - name: Upload model as artifact
+#         uses: actions/upload-artifact@v4
+#         with:
+#           name: ollama-model
+#           path: ollama-model.tar.gz
+#           retention-days: 1
+
+#   build-image-ollama:
+#     needs: [preparation, download-model]
 #     runs-on: ubuntu-latest
 #     steps:
-#     - name: Log in to GHCR
+#     - name: Checkout repo
+#       uses: actions/checkout@v4
+#       with:
+#         fetch-depth: 0
+#     - name: Download model artifact
+#       uses: actions/download-artifact@v4
+#       with:
+#         name: ollama-model
+#         path: models/
+#     - name: Extract model
+#       run: |
+#         ls -la models/
+#         ls -la ollama-deployment/
+#         tar -xzvf models/ollama-model.tar.gz -C models/
+#     - name: Log in to ghcr
 #       uses: docker/login-action@v3
 #       with:
-#         registry: ghcr.io/organicsoylent/
+#         registry: ghcr.io
 #         username: ${{ github.actor }}
 #         password: ${{ secrets.GITHUB_TOKEN }}
-#     - name: Cleaning up & freeing disk space
+#     - name: Build Ollama image
 #       run: |
-#         echo "Checking initial disk space:"
-#         df -h
-
-#         echo "Removing APT package caches..."
-#         sudo apt-get clean
-#         sudo rm -rf /var/lib/apt/lists/*
-
+#         docker build \
+#           --build-arg MODEL_NAME=$MODEL_NAME \
+#           -t ghcr.io/organicsoylent/ollama:latest \
+#           --file ollama-deployment/Dockerfile \
+#           .
 #         docker image ls
+#     - name: Save image for testing
+#       run: docker save ghcr.io/organicsoylent/ollama:latest -o ollama.tar
+#     - name: Upload image as artifact
+#       uses: actions/upload-artifact@v4
+#       with:
+#         name: ollama
+#         path: ollama.tar
+#         retention-days: 1
 
-#         echo "Cleaning up unused Docker layers..."
-#         docker system prune -a -f --volumes
+#   test-ollama:
+#     needs: [preparation, build-image-ollama]
+#     runs-on: ubuntu-latest
+#     steps:
+#       - name: Download ollama image
+#         uses: actions/download-artifact@v4
+#         with:
+#           name: ollama
+#       - name: Load Docker images
+#         run: |
+#           docker load -i ollama.tar
+#       - name: Run ollama and test
+#         run: |
+#           docker run --rm --name ollama-test ghcr.io/organicsoylent/ollama:latest bash -c "
+#               ollama serve & 
+#               while ! ollama list >/dev/null 2>&1; do 
+#                   echo 'Waiting for Ollama to start...'; 
+#                   sleep 1; 
+#               done;
+#               ollama list
+#               ollama list | grep $MODEL_NAME || exit 1
+#           "
 
-#         echo "Checking available disk space after cleanup:"
-#         df -h
+#   push-ollama:
+#     needs: [preparation, test-ollama]
+#     runs-on: ubuntu-latest
+#     steps:
+#       - name: Log in to GitHub Container Registry
+#         uses: docker/login-action@v3
+#         with:
+#           registry: ghcr.io
+#           username: ${{ github.actor }}
+#           password: ${{ secrets.GITHUB_TOKEN }}
+#       - name: Download Ollama image
+#         uses: actions/download-artifact@v4
+#         with:
+#           name: ollama
+#       - name: Load and Push Ollama image
+#         run: |
+#           docker load -i ollama.tar
+#           docker push ghcr.io/organicsoylent/ollama:latest
 
-#### Ollama Section ####
-  # download-model:
-  #   needs: [preparation]
-  #   runs-on: ubuntu-latest
-  #   env:
-  #     OLLAMA_MODELS: /home/runner/work/containllm/containllm/models/
-  #   steps:
-  #     - name: Checkout repo
-  #       uses: actions/checkout@v4
-  #       with:
-  #         fetch-depth: 0
-  #     - name: Install Ollama and start Ollama
-  #       run: |
-  #         ls -la 
-  #         chmod -R 777 $OLLAMA_MODELS
+# ### CrewAI Section ####
+#   build-image-crewai:
+#     needs: [preparation]
+#     runs-on: ubuntu-latest
+#     steps:
+#     - name: Checkout repo
+#       uses: actions/checkout@v4
+#       with:
+#         fetch-depth: 0
+#     - name: Log in to ghcr
+#       uses: docker/login-action@v3
+#       with:
+#         registry: ghcr.io
+#         username: ${{ github.actor }}
+#         password: ${{ secrets.GITHUB_TOKEN }}
+#     - name: Build & Push CrewAI image
+#       run: |
+#         docker build -t ghcr.io/organicsoylent/crewai:latest crewai-deployment/
+#         docker image ls
+#     - name: Save image for testing
+#       run: docker save ghcr.io/organicsoylent/crewai:latest -o crewai.tar
+#     - name: Upload image as artifact
+#       uses: actions/upload-artifact@v4
+#       with:
+#         name: crewai
+#         path: crewai.tar
+#         retention-days: 1
 
-  #         curl -fsSL https://ollama.com/install.sh | sh
+#   test-crewai:
+#     needs: [preparation, build-image-crewai]
+#     runs-on: ubuntu-latest
+#     steps:
+#       - name: Download crewai image
+#         uses: actions/download-artifact@v4
+#         with:
+#           name: crewai
+#       - name: Load Docker images
+#         run: |
+#           docker load -i crewai.tar
+#       - name: Run crewai and test
+#         run: |
+#           docker run --rm ghcr.io/organicsoylent/crewai:latest python -c "import sys; print('Python is working:', sys.version)"
 
-  #         export OLLAMA_MODELS=$OLLAMA_MODELS
-  #         echo "OLLAMA_MODELS is set to: $OLLAMA_MODELS"
+#   push-crewai:
+#     needs: [preparation, test-crewai]
+#     runs-on: ubuntu-latest
+#     steps:
+#       - name: Log in to GitHub Container Registry
+#         uses: docker/login-action@v3
+#         with:
+#           registry: ghcr.io
+#           username: ${{ github.actor }}
+#           password: ${{ secrets.GITHUB_TOKEN }}
+#       - name: Download CrewAI image
+#         uses: actions/download-artifact@v4
+#         with:
+#           name: crewai
+#       - name: Load and Push CrewAI image
+#         run: |
+#           docker load -i crewai.tar
+#           docker push ghcr.io/organicsoylent/crewai:latest
 
-  #         echo "Starting Ollama server in the background..."
-  #         ollama serve &
+#   build-push-crewai-ui:
+#     needs: [preparation]
+#     runs-on: ubuntu-latest
+#     steps:
+#     - name: Checkout repo
+#       uses: actions/checkout@v4
+#       with:
+#         fetch-depth: 0
+#     - name: Log in to ghcr
+#       uses: docker/login-action@v3
+#       with:
+#         registry: ghcr.io
+#         username: ${{ github.actor }}
+#         password: ${{ secrets.GITHUB_TOKEN }}
+#     - name: Build & Push CrewAI image
+#       run: |
+#         docker build -t ghcr.io/organicsoylent/crewai-ui:latest crewai_ui_deployment/CrewAI-Studio/
+#         docker image ls
+#         docker push ghcr.io/organicsoylent/crewai-ui:latest
+#     - name: Save image for testing
+#       run: docker save ghcr.io/organicsoylent/crewai-ui:latest -o crewai_ui.tar
+#     - name: Upload image as artifact
+#       uses: actions/upload-artifact@v4
+#       with:
+#         name: crewai_ui
+#         path: crewai_ui.tar
+#         retention-days: 1
 
-  #         echo "Waiting for Ollama server to be active..."
-  #         while ! ollama list >/dev/null 2>&1; do
-  #           sleep 1
-  #         done
+#   test-crewai:
+#     needs: [preparation, build-image-crewai]
+#     runs-on: ubuntu-latest
+#     steps:
+#       - name: Download crewai image
+#         uses: actions/download-artifact@v4
+#         with:
+#           name: crewai
+#       - name: Load Docker images
+#         run: |
+#           docker load -i crewai.tar
+#       - name: Run crewai and test
+#         run: |
+#           docker run --rm ghcr.io/organicsoylent/crewai:latest python -c "import sys; print('Python is working:', sys.version)"
 
-  #         echo "Ollama server is running. Pulling model..."
-  #         ollama pull $MODEL_NAME
+#   push-crewai:
+#     needs: [preparation, build-image-crewai]
+#     runs-on: ubuntu-latest
+#     steps:
+#       - name: Log in to GitHub Container Registry
+#         uses: docker/login-action@v3
+#         with:
+#           registry: ghcr.io
+#           username: ${{ github.actor }}
+#           password: ${{ secrets.GITHUB_TOKEN }}
+#       - name: Download CrewAI image
+#         uses: actions/download-artifact@v4
+#         with:
+#           name: crewai_ui
+#       - name: Load and Push CrewAI image
+#         run: |
+#           docker load -i crewai_ui.tar
+#           docker push ghcr.io/organicsoylent/crewai-ui:latest
 
-  #         ollama list
+#   cleanup-artifacts:
+#     if: always() 
+#     needs:
+#       # - push-ollama
+#       - push-crewai
+#     runs-on: ubuntu-latest
+#     permissions:
+#       actions: write
+#     steps:
+#       - name: Delete all artifacts
+#         run: |
+#           echo "Fetching artifact list..."
+#           ARTIFACTS=$(gh api repos/${{ github.repository }}/actions/artifacts --jq '.artifacts[].id')
 
-  #         ls -la $OLLAMA_MODELS
-  #     - name: Compress model before upload
-  #       run: tar -czvf ollama-model.tar.gz -C $OLLAMA_MODELS .
-  #     - name: Upload model as artifact
-  #       uses: actions/upload-artifact@v4
-  #       with:
-  #         name: ollama-model
-  #         path: ollama-model.tar.gz
-  #         retention-days: 1
-
-  # build-image-ollama:
-  #   needs: [preparation, download-model]
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #   - name: Checkout repo
-  #     uses: actions/checkout@v4
-  #     with:
-  #       fetch-depth: 0
-  #   - name: Download model artifact
-  #     uses: actions/download-artifact@v4
-  #     with:
-  #       name: ollama-model
-  #       path: models/
-  #   - name: Extract model
-  #     run: |
-  #       ls -la models/
-  #       ls -la ollama-deployment/
-  #       tar -xzvf models/ollama-model.tar.gz -C models/
-  #   - name: Log in to ghcr
-  #     uses: docker/login-action@v3
-  #     with:
-  #       registry: ghcr.io
-  #       username: ${{ github.actor }}
-  #       password: ${{ secrets.GITHUB_TOKEN }}
-  #   - name: Build Ollama image
-  #     run: |
-  #       docker build \
-  #         --build-arg MODEL_NAME=$MODEL_NAME \
-  #         -t ghcr.io/organicsoylent/ollama:latest \
-  #         --file ollama-deployment/Dockerfile \
-  #         .
-  #       docker image ls
-  #   - name: Save image for testing
-  #     run: docker save ghcr.io/organicsoylent/ollama:latest -o ollama.tar
-  #   - name: Upload image as artifact
-  #     uses: actions/upload-artifact@v4
-  #     with:
-  #       name: ollama
-  #       path: ollama.tar
-  #       retention-days: 1
-
-  # test-ollama:
-  #   needs: [preparation, build-image-ollama]
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - name: Download ollama image
-  #       uses: actions/download-artifact@v4
-  #       with:
-  #         name: ollama
-  #     - name: Load Docker images
-  #       run: |
-  #         docker load -i ollama.tar
-  #     - name: Run ollama and test
-  #       run: |
-  #         docker run --rm --name ollama-test ghcr.io/organicsoylent/ollama:latest bash -c "
-  #             ollama serve & 
-  #             while ! ollama list >/dev/null 2>&1; do 
-  #                 echo 'Waiting for Ollama to start...'; 
-  #                 sleep 1; 
-  #             done;
-  #             ollama list
-  #             ollama list | grep $MODEL_NAME || exit 1
-  #         "
-
-  # push-ollama:
-  #   needs: [preparation, test-ollama]
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - name: Log in to GitHub Container Registry
-  #       uses: docker/login-action@v3
-  #       with:
-  #         registry: ghcr.io
-  #         username: ${{ github.actor }}
-  #         password: ${{ secrets.GITHUB_TOKEN }}
-  #     - name: Download Ollama image
-  #       uses: actions/download-artifact@v4
-  #       with:
-  #         name: ollama
-  #     - name: Load and Push Ollama image
-  #       run: |
-  #         docker load -i ollama.tar
-  #         docker push ghcr.io/organicsoylent/ollama:latest
-
-#### CrewAI Section ####
-  # build-image-crewai:
-  #   needs: [preparation]
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #   - name: Checkout repo
-  #     uses: actions/checkout@v4
-  #     with:
-  #       fetch-depth: 0
-  #   - name: Log in to ghcr
-  #     uses: docker/login-action@v3
-  #     with:
-  #       registry: ghcr.io
-  #       username: ${{ github.actor }}
-  #       password: ${{ secrets.GITHUB_TOKEN }}
-  #   - name: Build & Push CrewAI image
-  #     run: |
-  #       docker build -t ghcr.io/organicsoylent/crewai:latest crewai-deployment/
-  #       docker image ls
-  #   - name: Save image for testing
-  #     run: docker save ghcr.io/organicsoylent/crewai:latest -o crewai.tar
-  #   - name: Upload image as artifact
-  #     uses: actions/upload-artifact@v4
-  #     with:
-  #       name: crewai
-  #       path: crewai.tar
-  #       retention-days: 1
-
-  # test-crewai:
-  #   needs: [preparation, build-image-crewai]
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - name: Download crewai image
-  #       uses: actions/download-artifact@v4
-  #       with:
-  #         name: crewai
-  #     - name: Load Docker images
-  #       run: |
-  #         docker load -i crewai.tar
-  #     - name: Run crewai and test
-  #       run: |
-  #         docker run --rm ghcr.io/organicsoylent/crewai:latest python -c "import sys; print('Python is working:', sys.version)"
-
-  # push-crewai:
-  #   needs: [preparation, test-crewai]
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - name: Log in to GitHub Container Registry
-  #       uses: docker/login-action@v3
-  #       with:
-  #         registry: ghcr.io
-  #         username: ${{ github.actor }}
-  #         password: ${{ secrets.GITHUB_TOKEN }}
-  #     - name: Download CrewAI image
-  #       uses: actions/download-artifact@v4
-  #       with:
-  #         name: crewai
-  #     - name: Load and Push CrewAI image
-  #       run: |
-  #         docker load -i crewai.tar
-  #         docker push ghcr.io/organicsoylent/crewai:latest
-
-  # build-push-crewai-ui:
-  #   needs: [preparation]
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #   - name: Checkout repo
-  #     uses: actions/checkout@v4
-  #     with:
-  #       fetch-depth: 0
-  #   - name: Log in to ghcr
-  #     uses: docker/login-action@v3
-  #     with:
-  #       registry: ghcr.io
-  #       username: ${{ github.actor }}
-  #       password: ${{ secrets.GITHUB_TOKEN }}
-  #   - name: Build & Push CrewAI image
-  #     run: |
-  #       docker build -t ghcr.io/organicsoylent/crewai-ui:latest crewai_ui_deployment/CrewAI-Studio/
-  #       docker image ls
-  #       docker push ghcr.io/organicsoylent/crewai-ui:latest
-  #   - name: Save image for testing
-  #     run: docker save ghcr.io/organicsoylent/crewai-ui:latest -o crewai_ui.tar
-  #   - name: Upload image as artifact
-  #     uses: actions/upload-artifact@v4
-  #     with:
-  #       name: crewai_ui
-  #       path: crewai_ui.tar
-  #       retention-days: 1
-
-  # test-crewai:
-  #   needs: [preparation, build-image-crewai]
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - name: Download crewai image
-  #       uses: actions/download-artifact@v4
-  #       with:
-  #         name: crewai
-  #     - name: Load Docker images
-  #       run: |
-  #         docker load -i crewai.tar
-  #     - name: Run crewai and test
-  #       run: |
-  #         docker run --rm ghcr.io/organicsoylent/crewai:latest python -c "import sys; print('Python is working:', sys.version)"
-
-  # push-crewai:
-  #   needs: [preparation, build-image-crewai]
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - name: Log in to GitHub Container Registry
-  #       uses: docker/login-action@v3
-  #       with:
-  #         registry: ghcr.io
-  #         username: ${{ github.actor }}
-  #         password: ${{ secrets.GITHUB_TOKEN }}
-  #     - name: Download CrewAI image
-  #       uses: actions/download-artifact@v4
-  #       with:
-  #         name: crewai_ui
-  #     - name: Load and Push CrewAI image
-  #       run: |
-  #         docker load -i crewai_ui.tar
-  #         docker push ghcr.io/organicsoylent/crewai-ui:latest
-
-  # cleanup-artifacts:
-  #   if: always() 
-  #   needs:
-  #     # - push-ollama
-  #     - push-crewai
-  #   runs-on: ubuntu-latest
-  #   permissions:
-  #     actions: write
-  #   steps:
-  #     - name: Delete all artifacts
-  #       run: |
-  #         echo "Fetching artifact list..."
-  #         ARTIFACTS=$(gh api repos/${{ github.repository }}/actions/artifacts --jq '.artifacts[].id')
-
-  #         for ARTIFACT_ID in $ARTIFACTS; do
-  #           echo "Deleting artifact $ARTIFACT_ID..."
-  #           gh api --method DELETE repos/${{ github.repository }}/actions/artifacts/$ARTIFACT_ID
-  #         done
-  #       env:
-  #         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#           for ARTIFACT_ID in $ARTIFACTS; do
+#             echo "Deleting artifact $ARTIFACT_ID..."
+#             gh api --method DELETE repos/${{ github.repository }}/actions/artifacts/$ARTIFACT_ID
+#           done
+#         env:
+#           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

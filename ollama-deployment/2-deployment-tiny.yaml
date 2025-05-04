@@ -30,7 +30,7 @@
 #             - name: OLLAMA_KEEP_ALIVE
 #               value: "1h"
 #             - name: MODEL_NAME
-#               value: "deepseek-r1:1.5b"
+#               value: "granite3.2-vision:2b" # "deepseek-r1:1.5b"
 #             - name: CUDA_VISIBLE_DEVICES
 #               value: "" ## disables GPU usage. set to "0" for enabling
 # ### Overriding default CMD (ollama serve) is necessary for env variables take effect

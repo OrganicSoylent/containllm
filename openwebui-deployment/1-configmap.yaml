@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: openwebui-cm
+  namespace: openwebui
+data:
+  WEBUI_NAME: "AI-nablement"        
+  # OLLAMA_BASE_URL: "http://ollama-service.ollama.svc.cluster.local:11434"
+  OLLAMA_BASE_URLS: "http://ollama-service-tiny.ollama.svc.cluster.local:11434;http://ollama-service-large.ollama.svc.cluster.local:11434"
+  # - name: DEFAULT_MODELS
+  #   value: "deepseek-r1:7b"
+  DEFAULT_LANG: "en"

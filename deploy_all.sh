@@ -1,5 +1,7 @@
 #!/bin/bash
 
+kubectl apply -f ollama-deployment/.
+
 deploy() {
     read -p "Do you want to deploy $1? (y/n): " choice
     case "$choice" in 
@@ -14,6 +16,5 @@ deploy() {
 }
 
 deploy "Kubernetes-dashboard @ https://localhost:9100" "kubernetes-dashboard/."
-deploy "Ollama" "ollama-deployment/."
-deploy "Openweb UI @ http://localhost:9000" "openwebui-deployment/."
 deploy "n8n AI-agent @ http://localhost:9200" "n8n-deployment/."
+deploy "Openweb UI @ http://localhost:9300" "openwebui-deployment/."

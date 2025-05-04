@@ -40,7 +40,7 @@ __[VI. Development](#vi-development)__
 For initial setup, check the [prerequesits](#iv-prerequesits) first.
 
 ### 1. Enable Nvidia runtime in Docker
-Check if nvidia-container-runtime is already listed as docker runtime (requires the Nvidia-container-runtime to be installed and [added to the Docker daemon config](#1-troubleshooting-nvidia-container-runtime))
+Check if nvidia-container-runtime is already listed as docker runtime (requires the Nvidia-container-runtime to be installed and [added to the Docker daemon config](#1-troubleshooting-nvidia-container-runtime)). If you don't set the nvidia-runc as default for docker, you have to repeat this everytime you want to start the cluster.
 ```
 docker info | grep -i runtime
 ```
@@ -65,7 +65,7 @@ minikube config set cpus 16
 ```
 Starts Minikube cluster with GPU usage.
 ```
-minikube start --driver docker --container-runtime docker --gpus all
+minikube start --driver docker --container-runtime docker --gpus all --mount --mount-string="/mnt/e/Projects/n8n-storage:/mnt/n8n-storage" --mount-type=virtiofs
 ```
 
 ### 3. Enable outside access to cluster
@@ -82,9 +82,11 @@ Run the _deploy_all.sh_ script. You can decline the installation of each compone
 sh deploy_all.sh
 ```
 IP addresses for deployments with UI:
-- Kubernetes Dashboard UI: https://localhost:9100
-- n8n: http://localhost:9200
-- Openweb UI: http://localhost:9300
+| App    | local address      | access |
+| ------------- | ------------- | ------------- |
+| Kubernetes Dashboard | https://localhost:9100 | kubectl -n k8s-dash create token k8sadmin |
+| n8n AI-agents | http://localhost:9200 | create account | 
+| Openweb UI | http://localhost:9300 | create account |
 
 <br>
 <details> 
@@ -93,31 +95,34 @@ IP addresses for deployments with UI:
 </details>
 
 ### 1. Ollama
-Deploys the kubernetes resources
+Deploys the kubernetes resources in the "ollama" namespace
 ```
 kubectl apply -f ./ollama-deployment/.
-```
-Check deployment progress
-```
+
+# Check deployment progress
 kubectl get pods -n ollama
 ```
-The ollama container comes with a preinstalled deepseek-r1 model (1.5b parameters).
+The ollama container comes with a preinstalled LLMs (see the configmap.yaml).
 
 ### 2. n8n AI-agent framework
+Deploy the n8n AI agent framework in the "n8n" namespace
 ```
 kubectl apply -f ./n8n-deployment/.
+
+# Check deployment progress
+kubectl get pods -n n8n
 ```
+The UI is accessible at [http://localhost:9200](http://localhost:9200)
 
 ### 3. OpenwebUI
 Deploy Kubernetes resources
 ```
 kubectl apply -f ./openwebui-deployment/.
-```
-Check deployment progress
-```
+
+# Check deployment progress
 kubectl get pods -n openwebui
 ```
-The UI should be accessible under [127.0.0.1:9300](http://127.0.0.1:9300)
+The UI is accessible at [http://localhost:9300](http://localhost:9300)
 
 ## III. Optional Tools
 
