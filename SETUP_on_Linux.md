@@ -23,7 +23,7 @@ minikube config view
 
 Starts Minikube cluster:
 ```
-minikube start
+minikube start --gpus all
 ```
 
 To enable access to apps on the cluster, run this in a second terminal __and keep it running__:
@@ -37,6 +37,26 @@ This setup requires installation of
 - Podman
 - Minikube & kubectl
 - Helm
+
+### NVIDIA GPU setup (if using a NVIDIA GPU)
+After installing the toolkit, configure it for the containerd runtime and generate a CDI spec (required for rootless Podman):
+```
+sudo nvidia-ctk runtime configure --runtime=containerd
+sudo systemctl restart containerd
+sudo nvidia-ctk cdi generate --output=/etc/cdi/nvidia.yaml
+```
+
+If GPU passthrough still does not work with rootless mode, switch to rootful and restart the cluster:
+```
+minikube config set rootless false
+minikube delete
+minikube start --gpus all
+```
+
+Deploy the NVIDIA device plugin so Kubernetes can schedule GPU workloads:
+```
+kubectl apply -f https://raw.githubusercontent.com/NVIDIA/k8s-device-plugin/v0.17.0/deployments/static/nvidia-device-plugin.yml
+```
 
 ## II. Applications
 List of externally accessible services
