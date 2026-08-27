@@ -157,6 +157,7 @@ helm show values apisix/apisix > full-apisix-values.yaml
 
 ```
 helm install apisix apisix/apisix \
+  -f  apisix/apisix_chart_values.yaml \
   --namespace apisix --create-namespace \
   --set admin.allow.ipList="{127.0.0.0/24}" \
   --wait
