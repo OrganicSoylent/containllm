@@ -113,7 +113,67 @@ updateStrategy: {}
   # type: RollingUpdate
 
 # -- Additional Kubernetes resources to deploy with the release.
-extraDeploy: []
+extraDeploy:
+  - apiVersion: batch/v1
+    kind: Job
+    metadata:
+      name: apisix-ollama-route-setup
+      namespace: apisix
+      annotations:
+        helm.sh/hook: post-install,post-upgrade
+        helm.sh/hook-weight: "10"
+        helm.sh/hook-delete-policy: before-hook-creation,hook-succeeded
+    spec:
+      backoffLimit: 5
+      template:
+        spec:
+          restartPolicy: OnFailure
+          containers:
+            - name: route-setup
+              image: curlimages/curl:8.7.1
+              command:
+                - sh
+                - -c
+                - |
+                  set -e
+
+                  RELEASE="apisix"
+                  NAMESPACE="apisix"
+                  ADMIN_URL="http://${RELEASE}-apisix-admin.${NAMESPACE}.svc.cluster.local:9180"
+                  API_KEY="edd1c9f034335f136f87ad84b625c8f1"
+
+                  echo "Waiting for APISIX Admin API to be ready..."
+                  until curl -sf -o /dev/null "${ADMIN_URL}/apisix/admin/routes" \
+                        -H "X-API-KEY: ${API_KEY}"; do
+                    sleep 3
+                  done
+                  echo "Admin API is ready."
+
+                  curl -sf -X PUT "${ADMIN_URL}/apisix/admin/upstreams/ollama-large" \
+                    -H "X-API-KEY: ${API_KEY}" \
+                    -H "Content-Type: application/json" \
+                    -d '{
+                      "name": "ollama-large-upstream",
+                      "type": "roundrobin",
+                      "nodes": {
+                        "ollama-service-large.ollama.svc.cluster.local:11434": 1
+                      },
+                      "scheme": "http",
+                      "pass_host": "pass"
+                    }'
+                  echo "Upstream created."
+
+                  curl -sf -X PUT "${ADMIN_URL}/apisix/admin/routes/ollama-route" \
+                    -H "X-API-KEY: ${API_KEY}" \
+                    -H "Content-Type: application/json" \
+                    -d '{
+                      "name": "ollama-route",
+                      "uri": "/*",
+                      "methods": ["GET","POST","PUT","DELETE","PATCH","HEAD","OPTIONS"],
+                      "upstream_id": "ollama-large",
+                      "status": 1
+                    }'
+                  echo "Route created. All traffic will now be forwarded to ollama-service-large."
 
 # -- Additional `volume`, See [Kubernetes Volumes](https://kubernetes.io/docs/concepts/storage/volumes/) for the detail.
 extraVolumes: []
