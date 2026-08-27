@@ -26,7 +26,7 @@ kind: Job
 metadata:
   name: apisix-ollama-route-setup
   # Change to the namespace where APISIX is deployed
-  namespace: apisix
+  namespace: default
   annotations:
     helm.sh/hook: post-install,post-upgrade
     helm.sh/hook-weight: "10"
@@ -50,7 +50,7 @@ spec:
               #   <release-name>-apisix-admin.<namespace>.svc.cluster.local
               # Adjust RELEASE and NAMESPACE to match your deployment.
               RELEASE="apisix"
-              NAMESPACE="apisix"
+              NAMESPACE="default"
               ADMIN_URL="http://${RELEASE}-apisix-admin.${NAMESPACE}.svc.cluster.local:9180"
               API_KEY="edd1c9f034335f136f87ad84b625c8f1"
 

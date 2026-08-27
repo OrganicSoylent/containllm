@@ -1,58 +1,63 @@
 # APISIX
 
 APISIX is deployed via Helm using the values in `apisix_chart_values.yaml`.
-The deployment uses **traditional mode** with etcd as the config provider and the ingress controller disabled.
+The deployment uses **standalone mode** — routes and upstreams are defined directly in the values file as YAML and stored in a ConfigMap. APISIX hot-reloads the ConfigMap automatically. No etcd, no Admin API calls, no Jobs required.
 
 ## Files
 
 | File | Purpose |
 |------|---------|
-| `apisix_chart_values.yaml` | Helm values for the APISIX release |
-| `ollama-route.yaml` | Kubernetes Job that registers the Ollama upstream and catch-all route via the Admin API |
+| `apisix_chart_values.yaml` | Helm values for the APISIX release — routes are defined here |
+| `ollama-route.yaml` | Standalone reference copy of the route definition (not applied directly) |
 
-## Ollama route (`ollama-route.yaml`)
+## How routing works (standalone mode)
 
-### What it does
+All route configuration lives under `apisix.deployment.standalone.config` in `apisix_chart_values.yaml`. The Helm chart turns this into a ConfigMap that APISIX mounts and watches.
 
-The Job calls the APISIX Admin API (port 9180) after installation and creates:
-
-1. **Upstream** `ollama-large-upstream` → `ollama-service-large.ollama.svc.cluster.local:11434`
-2. **Route** `/*` (all HTTP methods) → that upstream, so every request entering APISIX is forwarded to `ollama-service-large`
-
-The Job is annotated with `helm.sh/hook: post-install,post-upgrade`, meaning it re-runs on every `helm upgrade` as well.
-
-### How to apply
-
-**Option A – via Helm `extraDeploy` (recommended)**
-
-Paste the Job spec from `ollama-route.yaml` into `apisix_chart_values.yaml` under the `extraDeploy` key so it is part of the same Helm release:
-
-```yaml
-extraDeploy:
-  - apiVersion: batch/v1
-    kind: Job
-    metadata:
-      name: apisix-ollama-route-setup
-      ...
-```
-
-Helm will handle ordering and cleanup automatically on install and upgrade.
-
-**Option B – apply separately after `helm install`**
+To add or change a route:
+1. Edit `apisix_chart_values.yaml` under `apisix.deployment.standalone.config`
+2. Run `helm upgrade`
 
 ```bash
-kubectl apply -f apisix/ollama-route.yaml -n <apisix-namespace>
+helm upgrade apisix apisix/apisix -f apisix/apisix_chart_values.yaml -n <namespace>
 ```
 
-### Configuration to adjust
+APISIX picks up the updated ConfigMap within seconds — no pod restart needed.
 
-| Setting | Location | Default | Notes |
-|---------|----------|---------|-------|
-| `RELEASE` | shell script inside the Job | `apisix` | Must match your Helm release name |
-| `NAMESPACE` | shell script inside the Job | `apisix` | Must match the namespace APISIX is deployed into |
-| `API_KEY` | shell script inside the Job | `edd1c9f034335f136f87ad84b625c8f1` | Must match `apisix.admin.credentials.admin` in the values file |
+## Ollama route
 
-The Admin API service URL is derived as:
+The current route forwards **all traffic** entering APISIX to `ollama-service-large`:
+
+```yaml
+routes:
+  - id: ollama-route
+    uri: /*
+    methods: [GET, POST, PUT, DELETE, PATCH, HEAD, OPTIONS]
+    upstream:
+      type: roundrobin
+      nodes:
+        "ollama-service-large.ollama.svc.cluster.local:11434": 1
+      scheme: http
+      pass_host: pass
+#END
 ```
-http://<RELEASE>-apisix-admin.<NAMESPACE>.svc.cluster.local:9180
+
+> The `#END` marker at the bottom is required — APISIX uses it to detect that the config file is complete.
+
+## Adding more routes
+
+Append additional route entries under `routes:` in the standalone config block, then run `helm upgrade`. Example:
+
+```yaml
+routes:
+  - id: ollama-route
+    uri: /*
+    ...
+  - id: another-route
+    uri: /api/v2/*
+    upstream:
+      nodes:
+        "some-other-service.namespace.svc.cluster.local:8080": 1
+      type: roundrobin
+#END
 ```
