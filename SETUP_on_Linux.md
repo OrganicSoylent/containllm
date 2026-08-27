@@ -1,4 +1,5 @@
-# Run CrewAI & Deepseek-R1 in a local Minikube Cluster
+# Run local AI on a Minikube Cluster
+
 Deploy locally in a Kubernetes managed environement
 - Ollama server for running any LLM
 - OpenWebUI
@@ -11,12 +12,13 @@ Optionally, you can leverage the advantages of Kubernetes through
 
 
 ## 0. Cluster Quickstart
+
 For initial setup, check the [prerequesits](#iv-prerequesits) first.
 
 ```
-minikube config set driver podman
-minikube config set container-runtime containerd
-minikube config set rootless true
+minikube config set driver docker
+minikube config set container-runtime docker
+minikube config unset rootless
 
 minikube config view
 ```
@@ -31,18 +33,78 @@ To enable access to apps on the cluster, run this in a second terminal __and kee
 minikube tunnel
 ```
 
+
+## 0.1 App Quickstart
+
+```
+kubectl apply -f kubernetes-dashboard/.
+kubectl apply -f ollama-deployment/.
+kubectl apply -f openwebui-deployment/.
+```
+
+List of externally accessible services
+
+|service|namespace|address|
+|---|---|---|
+|openweb-ui-svc|openwebui|[127.0.0.1:9300](http://localhost:9300)|
+|n8n-external|n8n|[127.0.0.1:9200](http://localhost:9200)|
+|k8s-dashboard-kong-proxy|k8s-dash|[127.0.0.1:9100](http://localhost:9100)|
+
+
+```
+kubectl -n k8s-dash create token k8sadmin
+```
+
+<br>
+<details> 
+  <summary>In case you haven't noticed</summary>
+  <img src="./img/over_9000.jpg" alt="over 9000" width="200"></img>
+</details>
+<br>
+
+
 # II. Prerequesits
+
 This setup requires installation of
 - Nvidia-Container-Toolkit (if you use a NVIDIA GPU)
-- Podman
+- Docker
 - Minikube & kubectl
 - Helm
 
+
+### Docker
+
+Add your Linux user to Docker to avoid "permission denied":
+```
+sudo usermod -aG docker $USER
+newgrp docker
+```
+
+Verify
+```
+grep docker /etc/group
+```
+
+If Docker has been installed into ``/usr/lib/group`` instead of ``/etc/group`` it has to be moved there first:
+
+```
+sudo sh -c 'grep docker /usr/lib/group' >> '/etc/group'
+
+sudo gpasswd -a $USER docker
+```
+Verify
+```
+grep docker /etc/group
+```
+Log out and back in to apply the changes permanently
+
+
 ### NVIDIA GPU setup (if using a NVIDIA GPU)
+
 After installing the toolkit, configure it for the containerd runtime and generate a CDI spec (required for rootless Podman):
 ```
-sudo nvidia-ctk runtime configure --runtime=containerd
-sudo systemctl restart containerd
+sudo nvidia-ctk runtime configure --runtime=docker
+sudo systemctl restart docker
 sudo nvidia-ctk cdi generate --output=/etc/cdi/nvidia.yaml
 ```
 
@@ -59,20 +121,6 @@ kubectl apply -f https://raw.githubusercontent.com/NVIDIA/k8s-device-plugin/v0.1
 ```
 
 ## II. Applications
-List of externally accessible services
-
-|service|namespace|address|
-|---|---|---|
-|openweb-ui-svc|openwebui|[127.0.0.1:9300](http://localhost:9300)|
-|n8n-external|n8n|[127.0.0.1:9200](http://localhost:9200)|
-|k8s-dashboard-kong-proxy|k8s-dash|[127.0.0.1:9100](http://localhost:9100)|
-
-<br>
-<details> 
-  <summary>In case you haven't noticed</summary>
-  <img src="./img/over_9000.jpg" alt="over 9000" width="200"></img>
-</details>
-
 
 ### 1. Ollama
 
@@ -82,10 +130,14 @@ kubectl apply -f ollama-deployment/.
 
 # Check deployment progress
 kubectl get pods -n ollama
+
+kubectl exec -n ollama <ollama-pod-name> -it -- /bin/sh
 ```
 To download and run a LLM, you will have to go through the [Ollama server guide](ollama-deployment/README.md)
 
+
 ### 2. OpenwebUI
+
 Deploy Kubernetes resources
 ```
 kubectl apply -f ./openwebui-deployment/.
@@ -95,12 +147,43 @@ kubectl get pods -n openwebui
 ```
 The UI is accessible at [http://localhost:9300](http://localhost:9300)
 
+
 ### 3. ApiSIX
+
 ```
-helm repo add apisix https://apache.github.io/apisix-helm-chart && helm repo update && helm upgrade --install apisix apisix/apisix --create-namespace  --namespace apisix --set dashboard.enabled=true --set ingress-controller.enabled=true --set ingress-controller.config.apisix.serviceNamespace=apisix
+helm repo add apisix https://apache.github.io/apisix-helm-chart && helm repo update &&
+helm show values apisix/apisix > full-apisix-values.yaml
 ```
 
+```
+helm install apisix apisix/apisix \
+  --namespace apisix --create-namespace \
+  --set admin.allow.ipList="{127.0.0.0/24}" \
+  --wait
+```
+
+```
+kubectl port-forward svc/apisix-admin 9180:9180 -n apisix
+```
+
+- `--set secret.generatePassword=true` lets the Helm chart generate credentials (password stored in Kubernetes secrets).
+- `--set admin.api.credentials` injects admin credentials (optional, but recommended for security).
+
+```
+# Get config values from deployed resource
+helm get values apisix -n apisix > apisix/apisix_cm_values.yaml
+
+# Get config values from Helm Chart
+helm show values apisix/apisix > apisix/apisix_chart_values.yaml
+
+# apply values through helm
+helm upgrade apisix apisix/apisix -n apisix -f apisix/apisix_cm_values.yaml
+```
+
+
+
 ### 4. n8n AI-agent framework
+
 Deploy the n8n AI agent framework in the "n8n" namespace
 ```
 kubectl apply -f ./n8n-deployment/.
@@ -110,7 +193,9 @@ kubectl get pods -n n8n
 ```
 The UI is accessible at [http://localhost:9200](http://localhost:9200)
 
+
 ### 5. Kubernetes Dashboard
+
 The repo contains a customized version of the [Kubernetes Dashboard](#3-kubernetes-dashboard-customization).
 
 __Ensure the [cluster is tunneling and the tunnel is unlocked](#4-enable-outside-access-to-cluster).__
@@ -131,6 +216,7 @@ kubectl -n k8s-dash create token k8sadmin
 ```
 
 ### 6. ArgoCD
+
 ```
 kubectl create namespace argocd
 kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
@@ -154,7 +240,9 @@ connect the application GUIDE HERE
 
 
 ## VI. Development
+
 ### 1. Run CrewAI locally (Optional)
+
 Useful for creating a basic project template.
 
 Install crewai in a virtual environment (Python > 3.11 required).
@@ -179,6 +267,7 @@ deactivate
 ```
 
 ### 2. Deply Deepseek in single container
+
 Development of Dockerfile
 1. Install Ollama cli
 ```
@@ -205,7 +294,9 @@ sudo apt update
 sudo apt install -y nvidia-container-toolkit
 ```
 
+
 ### 3. Kubernetes Dashboard customization
+
 Add kubernetes-dashboard repository to Helm
 ```
 helm repo add kubernetes-dashboard https://kubernetes.github.io/dashboard/
@@ -223,6 +314,7 @@ kubectl patch svc kubernetes-dashboard-kong-proxy -p '{"spec": {"type": "LoadBal
 
 
 # Sources
+
 - [Blogpost for running Deepseek in Kubernetes](https://www.linkedin.com/pulse/deepseek-kubernetes-ai-powered-reasoning-scale-brains-upgrade-i56pc)
 
 - [Guide for installing Minikube](https://www.virtualizationhowto.com/2021/11/install-minikube-in-wsl-2-with-kubectl-and-helm/)
