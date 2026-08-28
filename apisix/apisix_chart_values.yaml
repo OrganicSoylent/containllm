@@ -483,19 +483,9 @@ apisix:
               prometheus:
                 prefer_name: true
               file-logger:
-                path: /dev/stdout
+                path: /usr/local/apisix/logs/access.log
                 include_req_body: true
                 include_resp_body: true
-                log_format:
-                  host: "$host"
-                  time: "$time_iso8601"
-                  client_ip: "$remote_addr"
-                  method: "$request_method"
-                  uri: "$request_uri"
-                  status: "$status"
-                  latency: "$request_time"
-                  request_body: "$request_body"
-                  response_body: "$response_body"
         #END
       # -- Specifies the name of the ConfigMap that contains the rule configurations.
       # The configuration must be set to the key named `apisix.yaml` in the configmap.
@@ -629,7 +619,7 @@ apisix:
       # -- Access log path
       accessLog: "/dev/stdout"
       # -- Access log format
-      accessLogFormat: '$remote_addr - $remote_user [$time_local] $http_host \"$request\" $status $body_bytes_sent $request_time \"$http_referer\" \"$http_user_agent\" $upstream_addr $upstream_status $upstream_response_time \"$upstream_scheme://$upstream_host$upstream_uri\"'
+      accessLogFormat: '$remote_addr - $remote_user [$time_local] $http_host \"$request\" $status $body_bytes_sent $request_time \"$http_referer\" \"$http_user_agent\" $upstream_addr $upstream_status $upstream_response_time \"$upstream_scheme://$upstream_host$upstream_uri\" body=\"$request_body\"'
       # -- Allows setting json or default characters escaping in variables
       accessLogFormatEscape: default
       # -- Error log path
