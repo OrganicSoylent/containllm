@@ -164,7 +164,11 @@ helm install apisix apisix/apisix \
 ```
 
 ```
-kubectl port-forward svc/apisix-admin 9180:9180 -n apisix
+kubectl port-forward svc/apisix-gateway 9080:80 -n apisix
+```
+
+```
+curl http://localhost:9080/api/tags
 ```
 
 - `--set secret.generatePassword=true` lets the Helm chart generate credentials (password stored in Kubernetes secrets).
