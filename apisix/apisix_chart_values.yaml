@@ -619,9 +619,9 @@ apisix:
       # -- Access log path
       accessLog: "/dev/stdout"
       # -- Access log format
-      accessLogFormat: '$remote_addr - $remote_user [$time_local] $http_host \"$request\" $status $body_bytes_sent $request_time \"$http_referer\" \"$http_user_agent\" $upstream_addr $upstream_status $upstream_response_time \"$upstream_scheme://$upstream_host$upstream_uri\" body=\"$request_body\"'
+      accessLogFormat: '{"time":"$time_iso8601","client":"$remote_addr","host":"$http_host","method":"$request_method","uri":"$request_uri","status":$status,"bytes":$body_bytes_sent,"latency":$request_time,"upstream":"$upstream_addr","upstream_status":"$upstream_status","request_body":"$request_body"}'
       # -- Allows setting json or default characters escaping in variables
-      accessLogFormatEscape: default
+      accessLogFormatEscape: json
       # -- Error log path
       errorLog: "/dev/stderr"
       # -- Error log level
