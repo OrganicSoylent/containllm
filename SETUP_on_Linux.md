@@ -144,6 +144,8 @@ kubectl apply -f ./openwebui-deployment/.
 
 # Check deployment progress
 kubectl get pods -n openwebui
+
+kubectl port-forward svc/openweb-ui-svc 9300:9300 -n openwebui
 ```
 The UI is accessible at [http://localhost:9300](http://localhost:9300)
 
@@ -171,18 +173,19 @@ kubectl port-forward svc/apisix-gateway 9080:80 -n apisix
 curl http://localhost:9080/api/tags
 ```
 
-- `--set secret.generatePassword=true` lets the Helm chart generate credentials (password stored in Kubernetes secrets).
-- `--set admin.api.credentials` injects admin credentials (optional, but recommended for security).
+```
+kubectl logs -l app.kubernetes.io/name=apisix -n apisix
+```
 
 ```
 # Get config values from deployed resource
-helm get values apisix -n apisix > apisix/apisix_cm_values.yaml
+helm get values apisix -n apisix > apisix/apisix_chart_values.yaml
 
 # Get config values from Helm Chart
 helm show values apisix/apisix > apisix/apisix_chart_values.yaml
 
 # apply values through helm
-helm upgrade apisix apisix/apisix -n apisix -f apisix/apisix_cm_values.yaml
+helm upgrade apisix apisix/apisix -n apisix -f apisix/apisix_chart_values.yaml
 ```
 
 
