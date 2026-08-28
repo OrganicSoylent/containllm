@@ -46,9 +46,9 @@ List of externally accessible services
 
 |service|namespace|address|
 |---|---|---|
-|openweb-ui-svc|openwebui|[127.0.0.1:9300](http://localhost:9300)|
-|n8n-external|n8n|[127.0.0.1:9200](http://localhost:9200)|
-|k8s-dashboard-kong-proxy|k8s-dash|[127.0.0.1:9100](http://localhost:9100)|
+|openweb-ui-svc|openwebui|minikube service openweb-ui-svc -n openwebui|
+|n8n-external|n8n|minikube service n8n-external -n n8n|
+|k8s-dashboard-kong-proxy|k8s-dash|minikube service k8s-dashboard-kong-proxy -n k8s-dash|
 
 
 ```
