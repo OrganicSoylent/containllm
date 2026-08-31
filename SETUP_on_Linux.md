@@ -188,6 +188,13 @@ helm show values apisix/apisix > apisix/apisix_chart_values.yaml
 helm upgrade apisix apisix/apisix -n apisix -f apisix/apisix_chart_values.yaml
 ```
 
+### Prometheus & Grafana
+
+```
+helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+helm repo update
+helm install monitoring prometheus-community/kube-prometheus-stack -n monitoring --create-namespace
+```
 
 
 ### 4. n8n AI-agent framework
