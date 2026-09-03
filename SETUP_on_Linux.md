@@ -196,6 +196,11 @@ helm repo update
 helm install monitoring prometheus-community/kube-prometheus-stack -n monitoring --create-namespace
 ```
 
+```
+kubectl port-forward svc/monitoring-grafana 8700:80 -n monitoring
+
+kubectl get secret monitoring-grafana -n monitoring -o jsonpath='{.data.admin-password}' | base64 -d
+```
 
 ### 4. n8n AI-agent framework
 
